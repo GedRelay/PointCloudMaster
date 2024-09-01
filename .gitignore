@@ -1,2 +1,13 @@
-.idea/
-experiments/
+/*
+
+!demo/
+
+!utils/
+
+!.gitignore
+
+!README.md
+
+!options.py
+
+!requirements.txt

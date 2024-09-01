@@ -138,7 +138,7 @@ class Visualizer():
 
             # 移除上一帧的几何对象
             for geometry in geometries:
-                vis.remove_geometry(geometry)
+                vis.remove_geometry(geometry, reset_bounding_box=False)
             geometries.clear()
 
             pcd_xyz, other_data = scene.get_frame(frame_id=i, filter=filter)
@@ -151,19 +151,19 @@ class Visualizer():
             # 候选框
             if 'geometry-bboxes' in other_data.keys():
                 for bbox in other_data['geometry-bboxes']:
-                    vis.add_geometry(bbox)
+                    vis.add_geometry(bbox, reset_bounding_box=False)
                     geometries.append(bbox)
 
             # 箭头
             if 'geometry-arrows' in other_data.keys():
                 for arrow in other_data['geometry-arrows']:
-                    vis.add_geometry(arrow)
+                    vis.add_geometry(arrow, reset_bounding_box=False)
                     geometries.append(arrow)
 
             # 球
             if 'geometry-spheres' in other_data.keys():
                 for sphere in other_data['geometry-spheres']:
-                    vis.add_geometry(sphere)
+                    vis.add_geometry(sphere, reset_bounding_box=False)
                     geometries.append(sphere)
 
             vis.update_geometry(pcd)
@@ -202,9 +202,6 @@ class Visualizer():
                     vis.get_view_control().convert_from_pinhole_camera_parameters(cam_params, allow_arbitrary=True)
 
                 reset_view = True
-
-            camera_pos = vis.get_view_control().convert_to_pinhole_camera_parameters().extrinsic
-            print("camera_pos:", camera_pos)
 
             # 延时处理事件和渲染
             start_time = time.time()

@@ -11,18 +11,22 @@ class Tools():
         pass
 
     @staticmethod
-    def get_bbox_from_points(points, color=(1, 0, 0)):
+    def get_bbox_from_points(points, color=(1, 0, 0), oriented=True):
         '''
         从点云中获取包围盒
         :param points: 点云 (N, 3)
         :param color: 包围盒颜色
+        :param oriented: 是否为旋转包围盒
         :return: 包围盒 o3d.geometry.OrientedBoundingBox
         '''
         import open3d as o3d
 
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points)
-        bbox = pcd.get_oriented_bounding_box()
+        if oriented:
+            bbox = pcd.get_oriented_bounding_box()
+        else:
+            bbox = pcd.get_axis_aligned_bounding_box()
         bbox.color = color
         return bbox
 
