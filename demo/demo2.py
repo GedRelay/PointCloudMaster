@@ -41,6 +41,8 @@ def filter(pcd_xyz, other_data):
 
 if __name__ == '__main__':
     opt = Options().parse()
+    opt.dataset = 'carla1'
+    opt.scene_id = 0
     visualizer = Visualizer(opt)
 
     # 加载场景

@@ -25,6 +25,7 @@ class Options():
         self.parser.add_argument('--window_name', type=str, default='Visualizer', help='窗口名称')
         self.parser.add_argument('--window_height', type=int, default=540, help='窗口高度')
         self.parser.add_argument('--window_width', type=int, default=960, help='窗口宽度')
+        self.parser.add_argument('--background_color', type=list, default=[1, 1, 1], help='背景颜色, 单值范围为[0, 1]')
 
     def parse(self):
         '''

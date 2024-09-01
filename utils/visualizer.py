@@ -8,23 +8,31 @@
 import open3d as o3d
 import numpy as np
 import time
+from utils.tools import Tools
 from tqdm import tqdm
+
 
 class Visualizer():
     def __init__(self, opt):
         self.opt = opt
 
-    def draw_points(self, points, other_data=None, axis=5):
+    def draw_points(self, points, other_data=None, axis=5, init_camera_rpy=None,
+                   init_camera_T=None):
         '''
         绘制点云
         :param points: 点云 N*3
         :param other_data: 其他数据, 可能包含颜色color, 候选框bbox, 箭头arrows等
-        :param axis: 坐标轴大小
+        :param axis: 坐标轴大小, None表示不绘制坐标轴
+        :param init_camera_rpy: 相机初始姿态 [roll, pitch, yaw]
+        :param init_camera_T: 相机初始位置 [x, y, z]
         :return:
         '''
 
         vis = o3d.visualization.Visualizer()
         vis.create_window(window_name=self.opt.window_name, height=self.opt.window_height, width=self.opt.window_width)
+
+        # 背景颜色
+        vis.get_render_option().background_color = np.asarray(self.opt.background_color)
 
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points)
@@ -58,19 +66,47 @@ class Visualizer():
         # vis.add_geometry(text)
 
         vis.add_geometry(pcd)
+
+        # 初始化视角
+        vis.reset_view_point(True)
+        # 修改相机初始位置
+        if init_camera_rpy is not None and init_camera_T is not None:
+            cam_params = o3d.camera.PinholeCameraParameters()
+
+            R = Tools.euler2mat(init_camera_rpy[0], init_camera_rpy[1], init_camera_rpy[2], degrees=True)
+            T = np.array([init_camera_T[1], init_camera_T[0], init_camera_T[2]])
+
+            Matrix = np.eye(4)
+            Matrix[:3, :3] = R
+            Matrix[:3, 3] = T
+            cam_params.extrinsic = Matrix
+
+            focal = 0.5
+
+            cam_params.intrinsic.set_intrinsics(self.opt.window_width,
+                                                self.opt.window_height,
+                                                fx=self.opt.window_width * focal,
+                                                fy=self.opt.window_width * focal,
+                                                cx=self.opt.window_width / 2,
+                                                cy=self.opt.window_height / 2)
+
+            vis.get_view_control().convert_from_pinhole_camera_parameters(cam_params, allow_arbitrary=True)
+
         vis.run()
         vis.destroy_window()
 
-
-    def play_scene(self, scene, begin=0, end=-1, delay_time=0.1, axis=5, filter=None):
+    def play_scene(self, scene, begin=0, end=-1, delay_time=0.1, axis=5, filter=None, init_camera_rpy=None,
+                   init_camera_T=None):
         '''
         播放场景
         :param scene: 场景加载器
         :param begin: 开始帧
         :param end: 结束帧, -1表示最后一帧
         :param delay_time: 延迟时间
-        :param axis: 坐标轴大小
+        :param axis: 坐标轴大小, None表示不绘制坐标轴
         :param filter: 过滤函数
+        :param init_camera_rpy: 相机初始姿态 [roll, pitch, yaw]
+        :param init_camera_T: 相机初始位置 [x, y, z]
         :return:
         '''
 
@@ -79,7 +115,11 @@ class Visualizer():
 
         vis = o3d.visualization.Visualizer()
         vis.create_window(window_name=self.opt.window_name, height=self.opt.window_height, width=self.opt.window_width)
-        to_reset = True
+
+        # 背景颜色
+        vis.get_render_option().background_color = np.asarray(self.opt.background_color)
+
+        reset_view = False
 
         pcd = o3d.geometry.PointCloud()
         vis.add_geometry(pcd)
@@ -127,12 +167,44 @@ class Visualizer():
                     geometries.append(sphere)
 
             vis.update_geometry(pcd)
+
             vis.poll_events()
             vis.update_renderer()
 
-            if to_reset:
-                vis.reset_view_point(True)
-                to_reset = False
+            if not reset_view:  # 初始化视角
+                vis.reset_view_point(True)  # 重置视角
+
+                # camera_pos = vis.get_view_control().convert_to_pinhole_camera_parameters().extrinsic
+                # print("camera_pos:", camera_pos)
+                # intrinsic = vis.get_view_control().convert_to_pinhole_camera_parameters().intrinsic.intrinsic_matrix
+                # print("intrinsic:", intrinsic)
+
+                # 修改相机初始位置
+                if init_camera_rpy is not None and init_camera_T is not None:
+                    cam_params = o3d.camera.PinholeCameraParameters()
+
+                    R = Tools.euler2mat(init_camera_rpy[0], init_camera_rpy[1], init_camera_rpy[2], degrees=True)
+                    T = np.array([init_camera_T[1], init_camera_T[0], init_camera_T[2]])
+
+                    Matrix = np.eye(4)
+                    Matrix[:3, :3] = R
+                    Matrix[:3, 3] = T
+                    cam_params.extrinsic = Matrix
+
+                    focal = 0.5  # 焦距
+                    cam_params.intrinsic.set_intrinsics(self.opt.window_width,
+                                                        self.opt.window_height,
+                                                        fx=self.opt.window_width * focal,
+                                                        fy=self.opt.window_width * focal,
+                                                        cx=self.opt.window_width / 2,
+                                                        cy=self.opt.window_height / 2)
+
+                    vis.get_view_control().convert_from_pinhole_camera_parameters(cam_params, allow_arbitrary=True)
+
+                reset_view = True
+
+            camera_pos = vis.get_view_control().convert_to_pinhole_camera_parameters().extrinsic
+            print("camera_pos:", camera_pos)
 
             # 延时处理事件和渲染
             start_time = time.time()
