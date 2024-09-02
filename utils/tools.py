@@ -146,6 +146,9 @@ class Tools():
         :param min_samples: 最小样本数
         :return: labels numpy.array (N,), -1表示离群点
         '''
+        if X.shape[0] == 0:
+            return []
+
         from sklearn.cluster import DBSCAN
 
         estimator = DBSCAN(eps=eps,
@@ -169,6 +172,9 @@ class Tools():
         :param min_samples: 最小样本数
         :return: labels numpy.array (N,), -1表示离群点
         '''
+        if X.shape[0] == 0:
+            return []
+
         import numpy as np
         import open3d as o3d
 
@@ -187,6 +193,9 @@ class Tools():
         :param bandwidth: 带宽
         :return: labels numpy.array (N,)
         '''
+        if X.shape[0] == 0:
+            return []
+
         from sklearn.cluster import MeanShift
 
         estimator = MeanShift(bandwidth=bandwidth,
@@ -194,6 +203,34 @@ class Tools():
                               min_bin_freq=1,
                               cluster_all=True,
                               n_jobs=4)
+
+        estimator.fit(X)
+        labels = estimator.labels_
+
+        return labels
+
+    @staticmethod
+    def kmeans(X, n_clusters=8):
+        '''
+        kmeans聚类
+        :param X: 数据 [N, D]
+        :param n_clusters: 聚类数
+        :return: labels numpy.array (N,)
+        '''
+        if X.shape[0] == 0:
+            return []
+
+        from sklearn.cluster import KMeans
+
+        estimator = KMeans(n_clusters=n_clusters,
+                           init='k-means++',
+                           n_init=10,
+                           max_iter=300,
+                           tol=1e-4,
+                           verbose=0,
+                           random_state=None,
+                           copy_x=True,
+                           algorithm='lloyd')
 
         estimator.fit(X)
         labels = estimator.labels_
