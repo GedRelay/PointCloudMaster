@@ -15,7 +15,8 @@ PointCloudMaster
 │  ├─demo1.py
 │  ├─demo2.py
 │  ├─demo3.py
-│  └─demo4.py
+│  ├─demo4.py
+│  └─demo5.py
 ├─utils
 │  ├─filters.py
 │  ├─sceneloader.py
@@ -50,66 +51,35 @@ PointCloudMaster
 
 其中包含许多工具函数
 
-## get_bbox_from_points
-
-从点云中获取包围盒
-
-## get_arrow
-
-获取箭头
-
-## euler2mat
-
-欧拉角转旋转矩阵
-
-## get_id_times
-
-获取每个id的出现次数
-
-## get_sphere
-
-获取球体
-
-## dbscan
-
-使用sklearn的dbscan进行聚类
-
-## dbscan2
-
-使用open3d的dbscan进行聚类
-
+| 函数                     | 作用                       |
+| ---------------------- | ------------------------ |
+| `get_bbox_from_points` | 从点云中获取包围盒                |
+| `get_arrow`            | 获取箭头                     |
+| `euler2mat`            | 欧拉角转旋转矩阵                 |
+| `get_id_times`         | 获取每个id的出现次数              |
+| `get_sphere`           | 获取球体                     |
+| `dbscan`               | 使用sklearn的dbscan进行聚类     |
+| `dbscan2`              | 使用open3d的dbscan进行聚类      |
+| `mean_shift`           | 使用sklearn的mean_shift进行聚类 |
+| `kmeans`               | 使用sklearn的kmeans进行聚类     |
+| `xyz2abrho`            | 将三维空间点云转换为极坐标空间点云        |
 
 
 # Filters类
 
 其中包含很多常用的过滤函数
 
-## xyz2v
 
-将三维空间点云转换为速度空间点云
-
-## add_noise_v
-
-为速度添加高斯噪声
-
-## add_noise_xyz
-
-在3d点云射线长度上添加高斯噪声
-
-## remove_points_by_id
-
-通过id去除点
-
-## remain_points_by_id
-
-通过id保留点
-
-## remain_points_by_z_axis
-
-保留z轴在一定范围之间的点
-
-
-
+| 函数                        | 作用               |
+| :------------------------ | :--------------- |
+| `xyz2v`                   | 将三维空间点云转换为速度空间点云 |
+| `add_noise_v`             | 为速度添加高斯噪声        |
+| `add_noise_xyz`           | 在3d点云射线长度上添加高斯噪声 |
+| `remove_points_by_mask`   | 去除mask所对应的点      |
+| `remain_points_by_mask`   | 保留mask所对应的点      |
+| `remove_points_by_id`     | 通过id去除点          |
+| `remain_points_by_id`     | 通过id保留点          |
+| `remain_points_by_z_axis` | 保留z轴在一定范围之间的点    |
 
 
 
