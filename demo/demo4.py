@@ -19,16 +19,17 @@ def filter(pcd_xyz, other_data):
     :param other_data: 其他数据
     :return: pcd_xyz, other_data
     '''
-    # pcd_xyz, other_data = Filters.add_noise_v(pcd_xyz, other_data)  # 为速度添加高斯噪声
-    #
-    # pcd_xyz, other_data = Filters.add_noise_xyz(pcd_xyz, other_data)  # 在3d点云射线长度上添加高斯噪声
-    #
-    # id_times = Tools.get_id_times(other_data['pointinfo-id'])  # 获取每个id的出现次数
+    pcd_xyz, other_data = Filters.add_noise_v(pcd_xyz, other_data)  # 为速度添加高斯噪声
+
+    pcd_xyz, other_data = Filters.add_noise_xyz(pcd_xyz, other_data)  # 在3d点云射线长度上添加高斯噪声
+
+    id_times = Tools.get_id_times(other_data['pointinfo-id'])  # 获取每个id的出现次数
 
     # 移除出现次数前2的id
-    # remove_id = id_times[:2, 0].tolist()
+    remove_id = id_times[:2, 0].tolist()
+    print('remove id:', remove_id)
 
-    # pcd_xyz, other_data = Filters.remove_points_by_id(pcd_xyz, other_data, id_list=remove_id)  # 移除指定id的点云
+    pcd_xyz, other_data = Filters.remove_points_by_id(pcd_xyz, other_data, id_list=remove_id)  # 移除指定id的点云
 
     pcd_v, other_data = Filters.xyz2v(pcd_xyz, other_data)  # 将三维空间点云转换为速度空间点云
 
@@ -37,8 +38,8 @@ def filter(pcd_xyz, other_data):
 
 if __name__ == '__main__':
     opt = Options().parse()
-    opt.dataset = 'aeva'
-    opt.scene_id = 5
+    opt.dataset = 'carla1'
+    opt.scene_id = 0
 
     visualizer = Visualizer(opt)
 
@@ -47,5 +48,5 @@ if __name__ == '__main__':
     print(scene.frame_num)
 
     # 播放场景
-    visualizer.play_scene(scene, filter=filter, begin=800)
+    visualizer.play_scene(scene, filter=filter, begin=0, delay_time=0)
 

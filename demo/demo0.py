@@ -28,7 +28,7 @@ if __name__ == '__main__':
     # 创建可视化工具
     visualizer = Visualizer(opt)
 
-    # 可视化单帧点云
+    # 可视化点云
     visualizer.draw_points(pcd_xyz)
 
     # 动态可视化整个场景

@@ -50,8 +50,7 @@ if __name__ == '__main__':
     print(scene.frame_num)
 
     # 使用过滤函数绘制点云
-    pcd_xyz, other_data = scene.get_frame(frame_id=100, filter=filter)
-    visualizer.draw_points(pcd_xyz, other_data=other_data)
+    visualizer.draw_one_frame(scene, frame_id=100, filter=filter)
 
     # 播放场景，使用过滤函数
     visualizer.play_scene(scene, filter=filter)

@@ -117,9 +117,9 @@ class Filters():
         import numpy as np
 
         ids = other_data['pointinfo-id']
-        mask = np.ones(ids.shape, dtype=bool)
+        mask = np.zeros(ids.shape, dtype=bool)
         for id in id_list:
-            mask = mask & (ids != id)
+            mask = mask | (ids == id)
 
         pcd_xyz, other_data = Filters.remove_points_by_mask(pcd_xyz, other_data, mask)
 

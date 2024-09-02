@@ -39,15 +39,19 @@ if __name__ == '__main__':
     scene = SceneLoader(opt)
     print(scene.frame_num)
 
-    # 获取某一帧的数据
+    # 获取某一帧的数据，并绘制点云
     pcd_xyz, _ = scene.get_frame(frame_id=100)
     print(pcd_xyz.shape)
     visualizer.draw_points(pcd_xyz)  # 绘制点云
 
-    # 使用过滤函数
+    # visualizer.draw_one_frame(scene, frame_id=100)  # 绘制一帧
+
+    # 使用过滤函数获取过滤后的点云，并绘制
     pcd_xyz_filter, _ = scene.get_frame(frame_id=100, filter=filter)
     print(pcd_xyz_filter.shape)
     visualizer.draw_points(pcd_xyz_filter)
+
+    # visualizer.draw_one_frame(scene, frame_id=100, filter=filter)  # 绘制一帧，使用过滤函数
 
     # 播放场景
     visualizer.play_scene(scene, filter=filter)
