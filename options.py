@@ -27,7 +27,10 @@ class Options():
         self.parser.add_argument('--window_width', type=int, default=960, help='窗口宽度')
         self.parser.add_argument('--window_left', type=int, default=50, help='窗口生成时的左边距')
         self.parser.add_argument('--window_top', type=int, default=50, help='窗口生成时的上边距')
+
+        # 渲染参数
         self.parser.add_argument('--background_color', type=list, default=[1, 1, 1], help='背景颜色, 单值范围为[0, 1]')
+        self.parser.add_argument('--point_size', type=float, default=4.0, help='显示点云大小')
 
     def parse(self):
         '''

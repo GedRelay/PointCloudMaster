@@ -17,7 +17,7 @@ class Visualizer():
         self.opt = opt
 
     def draw_points(self, points, other_data=None, axis=5, init_camera_rpy=None,
-                   init_camera_T=None):
+                    init_camera_T=None):
         '''
         绘制点云
         :param points: 点云 N*3
@@ -35,12 +35,18 @@ class Visualizer():
         # 背景颜色
         vis.get_render_option().background_color = np.asarray(self.opt.background_color)
 
+        # 点云大小
+        vis.get_render_option().point_size = self.opt.point_size
+
+        # 点云
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points)
 
         # 颜色
         if other_data is not None and 'pointinfo-color' in other_data.keys():
             pcd.colors = o3d.utility.Vector3dVector(other_data['pointinfo-color'])
+
+        vis.add_geometry(pcd)
 
         # 候选框
         if other_data is not None and 'geometry-bboxes' in other_data.keys():
@@ -66,7 +72,6 @@ class Visualizer():
         # text.paint_uniform_color((1, 0, 0))
         # vis.add_geometry(text)
 
-        vis.add_geometry(pcd)
 
         # 初始化视角
         vis.reset_view_point(True)
@@ -140,30 +145,29 @@ class Visualizer():
         # 背景颜色
         vis.get_render_option().background_color = np.asarray(self.opt.background_color)
 
+        # 点云大小
+        vis.get_render_option().point_size = self.opt.point_size
+
         reset_view = False
 
         pcd = o3d.geometry.PointCloud()
-        vis.add_geometry(pcd)
 
         # 坐标轴
         if axis is not None:
             ax = o3d.geometry.TriangleMesh.create_coordinate_frame(size=axis, origin=[0, 0, 0])
-            vis.add_geometry(ax)
-
-        # 追踪已添加的几何对象
-        geometries = []
-
-        running = True
 
         for i in range(begin, end):
             # print("frame_id:", i)
             # print("frame_name:", scene.dataset_loader.filenames[i])
 
             # 移除上一帧的几何对象
-            for geometry in geometries:
-                vis.remove_geometry(geometry, reset_bounding_box=False)
-            geometries.clear()
+            vis.clear_geometries()
 
+            # 坐标轴
+            if axis is not None:
+                vis.add_geometry(ax, reset_bounding_box=False)
+
+            # 点云
             pcd_xyz, other_data = scene.get_frame(frame_id=i, filter=filter)
             pcd.points = o3d.utility.Vector3dVector(pcd_xyz)
 
@@ -171,25 +175,22 @@ class Visualizer():
             if 'pointinfo-color' in other_data.keys():
                 pcd.colors = o3d.utility.Vector3dVector(other_data['pointinfo-color'])
 
+            vis.add_geometry(pcd, reset_bounding_box=False)
+
             # 候选框
             if 'geometry-bboxes' in other_data.keys():
                 for bbox in other_data['geometry-bboxes']:
                     vis.add_geometry(bbox, reset_bounding_box=False)
-                    geometries.append(bbox)
 
             # 箭头
             if 'geometry-arrows' in other_data.keys():
                 for arrow in other_data['geometry-arrows']:
                     vis.add_geometry(arrow, reset_bounding_box=False)
-                    geometries.append(arrow)
 
             # 球
             if 'geometry-spheres' in other_data.keys():
                 for sphere in other_data['geometry-spheres']:
                     vis.add_geometry(sphere, reset_bounding_box=False)
-                    geometries.append(sphere)
-
-            vis.update_geometry(pcd)
 
             running = vis.poll_events()
             if not running:
@@ -279,45 +280,72 @@ class Visualizer():
         vis1 = o3d.visualization.Visualizer()
         vis1.create_window(window_name=self.opt.window_name + '-1', height=self.opt.window_height, width=self.opt.window_width,
                             left=self.opt.window_left, top=self.opt.window_top)
+        vis2 = o3d.visualization.Visualizer()
+        vis2.create_window(window_name=self.opt.window_name + '-2', height=self.opt.window_height,
+                            width=self.opt.window_width,
+                            left=self.opt.window_left + self.opt.window_width, top=self.opt.window_top)
 
         # 背景颜色
         vis1.get_render_option().background_color = np.asarray(self.opt.background_color)
+        vis2.get_render_option().background_color = np.asarray(self.opt.background_color)
 
-        pcd1 = o3d.geometry.PointCloud()
-        pcd1.points = o3d.utility.Vector3dVector(pcd_xyz1)
-
-        # 颜色
-        if other_data1 is not None and 'pointinfo-color' in other_data1.keys():
-            pcd1.colors = o3d.utility.Vector3dVector(other_data1['pointinfo-color'])
-
-        # 候选框
-        if other_data1 is not None and 'geometry-bboxes' in other_data1.keys():
-            for bbox in other_data1['geometry-bboxes']:
-                vis1.add_geometry(bbox)
-
-        # 箭头
-        if other_data1 is not None and 'geometry-arrows' in other_data1.keys():
-            for arrow in other_data1['geometry-arrows']:
-                vis1.add_geometry(arrow)
-
-        # 球
-        if other_data1 is not None and 'geometry-spheres' in other_data1.keys():
-            for sphere in other_data1['geometry-spheres']:
-                vis1.add_geometry(sphere)
+        # 点云大小
+        vis1.get_render_option().point_size = self.opt.point_size
+        vis2.get_render_option().point_size = self.opt.point_size
 
         # 坐标轴
         if axis is not None:
             ax = o3d.geometry.TriangleMesh.create_coordinate_frame(size=axis, origin=[0, 0, 0])  # 坐标轴
             vis1.add_geometry(ax)
+            vis2.add_geometry(ax)
+
+        # 点云
+        pcd1 = o3d.geometry.PointCloud()
+        pcd1.points = o3d.utility.Vector3dVector(pcd_xyz1)
+        pcd2 = o3d.geometry.PointCloud()
+        pcd2.points = o3d.utility.Vector3dVector(pcd_xyz2)
+
+        # 颜色
+        if other_data1 is not None and 'pointinfo-color' in other_data1.keys():
+            pcd1.colors = o3d.utility.Vector3dVector(other_data1['pointinfo-color'])
+        if other_data2 is not None and 'pointinfo-color' in other_data2.keys():
+            pcd2.colors = o3d.utility.Vector3dVector(other_data2['pointinfo-color'])
+
+        vis1.add_geometry(pcd1)
+        vis2.add_geometry(pcd2)
+
+        # 候选框
+        if other_data1 is not None and 'geometry-bboxes' in other_data1.keys():
+            for bbox in other_data1['geometry-bboxes']:
+                vis1.add_geometry(bbox)
+        if other_data2 is not None and 'geometry-bboxes' in other_data2.keys():
+            for bbox in other_data2['geometry-bboxes']:
+                vis2.add_geometry(bbox)
+
+        # 箭头
+        if other_data1 is not None and 'geometry-arrows' in other_data1.keys():
+            for arrow in other_data1['geometry-arrows']:
+                vis1.add_geometry(arrow)
+        if other_data2 is not None and 'geometry-arrows' in other_data2.keys():
+            for arrow in other_data2['geometry-arrows']:
+                vis2.add_geometry(arrow)
+
+        # 球
+        if other_data1 is not None and 'geometry-spheres' in other_data1.keys():
+            for sphere in other_data1['geometry-spheres']:
+                vis1.add_geometry(sphere)
+        if other_data2 is not None and 'geometry-spheres' in other_data2.keys():
+            for sphere in other_data2['geometry-spheres']:
+                vis2.add_geometry(sphere)
 
         # text = o3d.t.geometry.TriangleMesh.create_text("Hello Open3D", depth=0.1).to_legacy()
         # text.paint_uniform_color((1, 0, 0))
         # vis.add_geometry(text)
 
-        vis1.add_geometry(pcd1)
-
         # 初始化视角
         vis1.reset_view_point(True)
+        vis2.reset_view_point(True)
+
         # 修改相机初始位置
         if init_camera_rpy is not None and init_camera_T is not None:
             cam_params = o3d.camera.PinholeCameraParameters()
@@ -341,45 +369,6 @@ class Visualizer():
 
             vis1.get_view_control().convert_from_pinhole_camera_parameters(cam_params, allow_arbitrary=True)
 
-        # 第二个窗口
-        vis2 = o3d.visualization.Visualizer()
-        vis2.create_window(window_name=self.opt.window_name + '-2', height=self.opt.window_height, width=self.opt.window_width,
-                            left=self.opt.window_left + self.opt.window_width, top=self.opt.window_top)
-
-        # 背景颜色
-        vis2.get_render_option().background_color = np.asarray(self.opt.background_color)
-
-        pcd2 = o3d.geometry.PointCloud()
-        pcd2.points = o3d.utility.Vector3dVector(pcd_xyz2)
-
-        # 颜色
-        if other_data2 is not None and 'pointinfo-color' in other_data2.keys():
-            pcd2.colors = o3d.utility.Vector3dVector(other_data2['pointinfo-color'])
-
-        # 候选框
-        if other_data2 is not None and 'geometry-bboxes' in other_data2.keys():
-            for bbox in other_data2['geometry-bboxes']:
-                vis2.add_geometry(bbox)
-
-        # 箭头
-        if other_data2 is not None and 'geometry-arrows' in other_data2.keys():
-            for arrow in other_data2['geometry-arrows']:
-                vis2.add_geometry(arrow)
-
-        # 球
-        if other_data2 is not None and 'geometry-spheres' in other_data2.keys():
-            for sphere in other_data2['geometry-spheres']:
-                vis2.add_geometry(sphere)
-
-        # 坐标轴
-        if axis is not None:
-            ax = o3d.geometry.TriangleMesh.create_coordinate_frame(size=axis, origin=[0, 0, 0])
-            vis2.add_geometry(ax)
-
-        vis2.add_geometry(pcd2)
-
-        # 初始化视角
-        vis2.reset_view_point(True)
 
         running1 = True
         running2 = True
@@ -454,6 +443,10 @@ class Visualizer():
         vis1.get_render_option().background_color = np.asarray(self.opt.background_color)
         vis2.get_render_option().background_color = np.asarray(self.opt.background_color)
 
+        # 点云大小
+        vis1.get_render_option().point_size = self.opt.point_size
+        vis2.get_render_option().point_size = self.opt.point_size
+
         # 点云
         pcd1 = o3d.geometry.PointCloud()
         vis1.add_geometry(pcd1)
@@ -463,25 +456,21 @@ class Visualizer():
         # 坐标轴
         if axis is not None:
             ax = o3d.geometry.TriangleMesh.create_coordinate_frame(size=axis, origin=[0, 0, 0])
-            vis1.add_geometry(ax)
-            vis2.add_geometry(ax)
-
-        # 追踪已添加的几何对象
-        geometries1 = []
-        geometries2 = []
 
         for i in range(begin, end):
             # print("frame_id:", i)
             # print("frame_name:", scene.dataset_loader.filenames[i])
 
-            # 移除上一帧的几何对象
-            for geometry in geometries1:
-                vis1.remove_geometry(geometry, reset_bounding_box=False)
-            geometries1.clear()
-            for geometry in geometries2:
-                vis2.remove_geometry(geometry, reset_bounding_box=False)
-            geometries2.clear()
+            # # 移除上一帧的几何对象
+            vis1.clear_geometries()
+            vis2.clear_geometries()
 
+            # 坐标轴
+            if axis is not None:
+                vis1.add_geometry(ax, reset_bounding_box=False)
+                vis2.add_geometry(ax, reset_bounding_box=False)
+
+            # 点云
             pcd_xyz1, other_data1 = scene.get_frame(frame_id=i, filter=filter1)
             pcd1.points = o3d.utility.Vector3dVector(pcd_xyz1)
             pcd_xyz2, other_data2 = scene.get_frame(frame_id=i, filter=filter2)
@@ -493,38 +482,32 @@ class Visualizer():
             if 'pointinfo-color' in other_data2.keys():
                 pcd2.colors = o3d.utility.Vector3dVector(other_data2['pointinfo-color'])
 
+            vis1.add_geometry(pcd1, reset_bounding_box=False)
+            vis2.add_geometry(pcd2, reset_bounding_box=False)
+
             # 候选框
             if 'geometry-bboxes' in other_data1.keys():
                 for bbox in other_data1['geometry-bboxes']:
                     vis1.add_geometry(bbox, reset_bounding_box=False)
-                    geometries1.append(bbox)
             if 'geometry-bboxes' in other_data2.keys():
                 for bbox in other_data2['geometry-bboxes']:
                     vis2.add_geometry(bbox, reset_bounding_box=False)
-                    geometries2.append(bbox)
 
             # 箭头
             if 'geometry-arrows' in other_data1.keys():
                 for arrow in other_data1['geometry-arrows']:
                     vis1.add_geometry(arrow, reset_bounding_box=False)
-                    geometries1.append(arrow)
             if 'geometry-arrows' in other_data2.keys():
                 for arrow in other_data2['geometry-arrows']:
                     vis2.add_geometry(arrow, reset_bounding_box=False)
-                    geometries2.append(arrow)
 
             # 球
             if 'geometry-spheres' in other_data1.keys():
                 for sphere in other_data1['geometry-spheres']:
                     vis1.add_geometry(sphere, reset_bounding_box=False)
-                    geometries1.append(sphere)
             if 'geometry-spheres' in other_data2.keys():
                 for sphere in other_data2['geometry-spheres']:
                     vis2.add_geometry(sphere, reset_bounding_box=False)
-                    geometries2.append(sphere)
-
-            vis1.update_geometry(pcd1)
-            vis2.update_geometry(pcd2)
 
             if not reset_view:  # 初始化视角
                 vis1.reset_view_point(True)  # 重置视角
