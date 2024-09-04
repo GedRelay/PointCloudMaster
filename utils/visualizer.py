@@ -167,7 +167,7 @@ class Visualizer():
         '''
 
         if end == -1:
-            end = scene.frame_num
+            end = scene.frame_num - 1
 
         vis = o3d.visualization.Visualizer()
         vis.create_window(window_name=self.opt.window_name, height=self.opt.window_height, width=self.opt.window_width,
@@ -190,7 +190,7 @@ class Visualizer():
         self.__keybord_callback()
 
         self.frame_id = begin
-        while self.frame_id < end:
+        while self.frame_id <= end:
             # print("frame_id:", self.frame_id)
             # print("frame_name:", scene.dataset_loader.filenames[self.frame_id])
 
@@ -481,7 +481,7 @@ class Visualizer():
         :return:
         '''
         if end == -1:
-            end = scene.frame_num
+            end = scene.frame_num - 1
 
         reset_view = False
 
@@ -514,7 +514,7 @@ class Visualizer():
         self.__keybord_callback()
 
         self.frame_id = begin
-        while self.frame_id < end:
+        while self.frame_id <= end:
             # print("frame_id:", self.frame_id)
             # print("frame_name:", scene.dataset_loader.filenames[self.frame_id])
 
