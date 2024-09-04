@@ -7,8 +7,7 @@
 """
 
 import sys
-import os
-sys.path.append(os.path.abspath('.'))
+sys.path.append('.')
 from options import Options  # 导入参数设置
 from utils.visualizer import Visualizer  # 导入可视化工具
 from utils.sceneloader import SceneLoader  # 导入场景加载工具
@@ -19,6 +18,9 @@ if __name__ == '__main__':
     opt = Options().parse()
     opt.dataset = 'carla1'
     opt.scene_id = 0
+    opt.preload = True  # 预加载
+    opt.preload_begin = 0
+    opt.preload_end = 100
 
     # 加载场景
     scene = SceneLoader(opt)

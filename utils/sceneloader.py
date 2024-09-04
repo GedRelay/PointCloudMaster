@@ -15,7 +15,7 @@ import tqdm
 
 
 class SceneLoader():
-    def __init__(self, opt, preload=False, preload_begin=0, preload_end=-1):
+    def __init__(self, opt):
         self.opt = opt
 
         if self.opt.dataset == 'carla1':
@@ -32,14 +32,11 @@ class SceneLoader():
         self.__Rs = None
         self.__Ts = None
 
-        self.preload = preload
-        self.preload_begin = preload_begin
-        self.preload_end = preload_end
-        if self.preload_end == -1:
-            self.preload_end = self.frame_num - 1
+        if self.opt.preload_end == -1:
+            self.opt.preload_end = self.frame_num - 1
         self.preload_pcd_xyz_dict = {}
         self.preload_other_data_dict = {}
-        if self.preload:
+        if self.opt.preload:
             self.__preload_data()
 
     def __preload_data(self):
@@ -49,12 +46,12 @@ class SceneLoader():
         :param preload_end: 预加载结束帧, -1表示加载到最后一帧
         :return:
         '''
-        assert 0 <= self.preload_begin < self.frame_num, '预加载起始帧:{}越界, 最大帧id为{}'.format(self.preload_begin, self.frame_num - 1)
-        assert self.preload_begin < self.preload_end < self.frame_num, '预加载结束帧:{}越界, 起始帧为{}, 最大帧id为{}'.format(preload_end,
-                                                                                                    self.preload_begin,
+        assert 0 <= self.opt.preload_begin < self.frame_num, '预加载起始帧:{}越界, 最大帧id为{}'.format(self.opt.preload_begin, self.frame_num - 1)
+        assert self.opt.preload_begin < self.opt.preload_end < self.frame_num, '预加载结束帧:{}越界, 起始帧为{}, 最大帧id为{}'.format(self.opt.preload_end,
+                                                                                                    self.opt.preload_begin,
                                                                                                     self.frame_num - 1)
 
-        bar = tqdm.tqdm(range(self.preload_begin, self.preload_end + 1), desc='数据预加载中', ncols=100)
+        bar = tqdm.tqdm(range(self.opt.preload_begin, self.opt.preload_end + 1), desc='数据预加载中（{}~{}帧）'.format(self.opt.preload_begin, self.opt.preload_end), ncols=100)
         for frame_id in bar:
             pcd_xyz, other_data = self.dataset_loader.load_frame(frame_id)
             self.preload_pcd_xyz_dict[frame_id] = pcd_xyz
@@ -71,7 +68,7 @@ class SceneLoader():
         '''
         assert 0 <= frame_id < self.frame_num, '帧id:{}越界, 最大帧id为{}'.format(frame_id, self.frame_num - 1)
 
-        if self.preload and frame_id in self.preload_pcd_xyz_dict:
+        if self.opt.preload and frame_id in self.preload_pcd_xyz_dict:
             pcd_xyz = self.preload_pcd_xyz_dict[frame_id].copy()
             other_data = self.preload_other_data_dict[frame_id].copy()
         else:

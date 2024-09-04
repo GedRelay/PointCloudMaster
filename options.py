@@ -17,9 +17,12 @@ class Options():
         初始化参数
         :return:
         '''
-        # 自定义参数
+        # 场景加载参数
         self.parser.add_argument('--dataset', type=str, default='carla1', help='数据集名称: carla1, carla2, aeva, helipr')
         self.parser.add_argument('--scene_id', type=int, default=0, help='场景编号, 从0开始')
+        self.parser.add_argument('--preload', type=bool, default=False, help='是否预加载数据')
+        self.parser.add_argument('--preload_begin', type=int, default=0, help='预加载数据的起始帧')
+        self.parser.add_argument('--preload_end', type=int, default=-1, help='预加载数据的结束帧, -1表示到最后一帧')
 
         # 窗口参数
         self.parser.add_argument('--window_name', type=str, default='Visualizer', help='窗口名称')
