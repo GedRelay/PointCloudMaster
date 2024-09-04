@@ -5,6 +5,11 @@
 @Email       :  gedrelay@stu.jnu.edu.cn
 @Description :  demo5.py 对比两个窗口的点云
 """
+
+import sys
+import os
+sys.path.append(os.path.abspath('.'))
+
 from options import Options
 from utils.visualizer import Visualizer
 from utils.sceneloader import SceneLoader
@@ -24,7 +29,7 @@ def filter1(pcd_xyz, other_data):
     color[other_data['pointinfo-id'] == 98] = [0.5, 0.5, 0.5]
     other_data['pointinfo-color'] = color
 
-    print('filter1, point num:', pcd_xyz.shape[0])
+    # print('filter1, point num:', pcd_xyz.shape[0])
 
     return pcd_xyz, other_data
 
@@ -41,7 +46,7 @@ def filter2(pcd_xyz, other_data):
     mask = np.random.choice(point_num, left_num, replace=False)
     pcd_xyz, other_data = Filters.remove_points_by_mask(pcd_xyz, other_data, mask)
 
-    print('filter2, point num:', pcd_xyz.shape[0])
+    # print('filter2, point num:', pcd_xyz.shape[0])
 
     return pcd_xyz, other_data
 
@@ -67,5 +72,6 @@ if __name__ == '__main__':
     visualizer.compare_one_frame(scene, frame_id=100, filter1=filter1, filter2=filter2)
 
     # 使用两个过滤函数对比动态场景的点云
+    # 可以使用 空格键 暂停/继续，在暂停状态下可以使用方向键 ← → 或 ↑ ↓ 来控制帧的前进和后退
     visualizer.compare_scene(scene, filter1=filter1, filter2=filter2, delay_time=0, begin=0, end=-1, axis=5,
                           init_camera_rpy=[180, -60, -90], init_camera_T=[15, 0, 30])

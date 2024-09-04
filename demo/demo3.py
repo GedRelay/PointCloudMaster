@@ -6,6 +6,10 @@
 @Description :  demo3, 演示3, 查看全局地图
 """
 
+import sys
+import os
+sys.path.append(os.path.abspath('.'))
+
 from options import Options
 from utils.visualizer import Visualizer
 from utils.sceneloader import SceneLoader

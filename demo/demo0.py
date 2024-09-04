@@ -6,6 +6,9 @@
 @Description :  demo0, 演示0，可视化点云
 """
 
+import sys
+import os
+sys.path.append(os.path.abspath('.'))
 from options import Options  # 导入参数设置
 from utils.visualizer import Visualizer  # 导入可视化工具
 from utils.sceneloader import SceneLoader  # 导入场景加载工具
@@ -32,4 +35,5 @@ if __name__ == '__main__':
     visualizer.draw_points(pcd_xyz)
 
     # 动态可视化整个场景
+    # 可以使用 空格键 暂停/继续，在暂停状态下可以使用方向键 ← → 或 ↑ ↓ 来控制帧的前进和后退
     visualizer.play_scene(scene, delay_time=0)

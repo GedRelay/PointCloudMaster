@@ -6,6 +6,10 @@
 @Description :  demo1 演示1, 通过场景加载器加载场景并进行可视化, 使用过滤函数可视化过滤后的点云
 """
 
+import sys
+import os
+sys.path.append(os.path.abspath('.'))
+
 from options import Options
 from utils.visualizer import Visualizer
 from utils.sceneloader import SceneLoader

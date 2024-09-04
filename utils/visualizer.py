@@ -10,11 +10,42 @@ import numpy as np
 import time
 from utils.tools import Tools
 from tqdm import tqdm
+from pynput import keyboard
 
 
 class Visualizer():
     def __init__(self, opt):
         self.opt = opt
+
+        self.pause = False
+        self.frame_id = 0
+        self.change_frame = False
+
+    def __keybord_callback(self):
+        # 检测键盘事件
+        def on_press(key):
+            # 空格键暂停
+            if key == keyboard.Key.space:
+                self.pause = not self.pause
+                if self.pause:
+                    print("已暂停,当前帧:", self.frame_id)
+                else:
+                    print("继续播放,起始帧:", self.frame_id)
+            # 如果在暂停状态下按下←或↑键，后退一帧
+            if (key == keyboard.Key.left or key == keyboard.Key.up) and self.pause:
+                self.frame_id -= 1
+                self.change_frame = True
+                print("当前帧:", self.frame_id)
+            # 如果在暂停状态下按下→或↓键，前进一帧
+            if (key == keyboard.Key.right or key == keyboard.Key.down) and self.pause:
+                self.frame_id += 1
+                self.change_frame = True
+                print("当前帧:", self.frame_id)
+
+        listener = keyboard.Listener(on_press=on_press)
+        listener.start()
+
+
 
     def draw_points(self, points, other_data=None, axis=5, init_camera_rpy=None,
                     init_camera_T=None):
@@ -121,7 +152,7 @@ class Visualizer():
 
 
     def play_scene(self, scene, begin=0, end=-1, delay_time=0.1, axis=5, filter=None, init_camera_rpy=None,
-                   init_camera_T=None):
+                    init_camera_T=None):
         '''
         播放场景
         :param scene: 场景加载器
@@ -156,9 +187,12 @@ class Visualizer():
         if axis is not None:
             ax = o3d.geometry.TriangleMesh.create_coordinate_frame(size=axis, origin=[0, 0, 0])
 
-        for i in range(begin, end):
-            # print("frame_id:", i)
-            # print("frame_name:", scene.dataset_loader.filenames[i])
+        self.__keybord_callback()
+
+        self.frame_id = begin
+        while self.frame_id < end:
+            # print("frame_id:", self.frame_id)
+            # print("frame_name:", scene.dataset_loader.filenames[self.frame_id])
 
             # 移除上一帧的几何对象
             vis.clear_geometries()
@@ -168,7 +202,7 @@ class Visualizer():
                 vis.add_geometry(ax, reset_bounding_box=False)
 
             # 点云
-            pcd_xyz, other_data = scene.get_frame(frame_id=i, filter=filter)
+            pcd_xyz, other_data = scene.get_frame(frame_id=self.frame_id, filter=filter)
             pcd.points = o3d.utility.Vector3dVector(pcd_xyz)
 
             # 颜色
@@ -191,11 +225,6 @@ class Visualizer():
             if 'geometry-spheres' in other_data.keys():
                 for sphere in other_data['geometry-spheres']:
                     vis.add_geometry(sphere, reset_bounding_box=False)
-
-            running = vis.poll_events()
-            if not running:
-                break
-            vis.update_renderer()
 
             if not reset_view:  # 初始化视角
                 vis.reset_view_point(True)  # 重置视角
@@ -229,11 +258,36 @@ class Visualizer():
 
                 reset_view = True
 
+            # 更新渲染
+            running = vis.poll_events()
+            vis.update_renderer()
+            if not running:
+                break
+
             # 延时处理事件和渲染
             start_time = time.time()
             while time.time() - start_time < delay_time:
-                vis.poll_events()
+                running = vis.poll_events()
                 vis.update_renderer()
+                if not running:
+                    break
+            if not running:
+                break
+
+            # 暂停
+            while self.pause:
+                running = vis.poll_events()
+                vis.update_renderer()
+                if not running:
+                    break
+                if self.change_frame:
+                    self.change_frame = False
+                    break
+            if not running:
+                break
+
+            if not self.pause:
+                self.frame_id += 1
 
         vis.destroy_window()
 
@@ -263,7 +317,7 @@ class Visualizer():
 
 
     def compare_two_point_clouds(self, pcd_xyz1, pcd_xyz2, other_data1=None, other_data2=None, axis=5,
-                                 init_camera_rpy=None, init_camera_T=None):
+                                init_camera_rpy=None, init_camera_T=None):
         '''
         比较两个点云, 同步视角显示
         :param pcd_xyz1: 点云1
@@ -457,9 +511,12 @@ class Visualizer():
         if axis is not None:
             ax = o3d.geometry.TriangleMesh.create_coordinate_frame(size=axis, origin=[0, 0, 0])
 
-        for i in range(begin, end):
-            # print("frame_id:", i)
-            # print("frame_name:", scene.dataset_loader.filenames[i])
+        self.__keybord_callback()
+
+        self.frame_id = begin
+        while self.frame_id < end:
+            # print("frame_id:", self.frame_id)
+            # print("frame_name:", scene.dataset_loader.filenames[self.frame_id])
 
             # # 移除上一帧的几何对象
             vis1.clear_geometries()
@@ -471,9 +528,9 @@ class Visualizer():
                 vis2.add_geometry(ax, reset_bounding_box=False)
 
             # 点云
-            pcd_xyz1, other_data1 = scene.get_frame(frame_id=i, filter=filter1)
+            pcd_xyz1, other_data1 = scene.get_frame(frame_id=self.frame_id, filter=filter1)
             pcd1.points = o3d.utility.Vector3dVector(pcd_xyz1)
-            pcd_xyz2, other_data2 = scene.get_frame(frame_id=i, filter=filter2)
+            pcd_xyz2, other_data2 = scene.get_frame(frame_id=self.frame_id, filter=filter2)
             pcd2.points = o3d.utility.Vector3dVector(pcd_xyz2)
 
             # 颜色
@@ -540,16 +597,13 @@ class Visualizer():
             cam1 = vis1.get_view_control().convert_to_pinhole_camera_parameters()
             vis2.get_view_control().convert_from_pinhole_camera_parameters(cam1)
             running1 = vis1.poll_events()
-
             cam2 = vis2.get_view_control().convert_to_pinhole_camera_parameters()
             vis1.get_view_control().convert_from_pinhole_camera_parameters(cam2)
             running2 = vis2.poll_events()
-
-            if not running1 or not running2:
-                break
-
             vis1.update_renderer()
             vis2.update_renderer()
+            if not running1 or not running2:
+                break
 
             # 延时处理事件和渲染
             start_time = time.time()
@@ -560,15 +614,33 @@ class Visualizer():
                 cam2 = vis2.get_view_control().convert_to_pinhole_camera_parameters()
                 vis1.get_view_control().convert_from_pinhole_camera_parameters(cam2)
                 running2 = vis2.poll_events()
-
-                if not running1 or not running2:
-                    break
-
                 vis1.update_renderer()
                 vis2.update_renderer()
-
+                if not running1 or not running2:
+                    break
             if not running1 or not running2:
                 break
+
+            # 处理键盘事件
+            while self.pause:
+                cam1 = vis1.get_view_control().convert_to_pinhole_camera_parameters()
+                vis2.get_view_control().convert_from_pinhole_camera_parameters(cam1)
+                running1 = vis1.poll_events()
+                cam2 = vis2.get_view_control().convert_to_pinhole_camera_parameters()
+                vis1.get_view_control().convert_from_pinhole_camera_parameters(cam2)
+                running2 = vis2.poll_events()
+                vis1.update_renderer()
+                vis2.update_renderer()
+                if not running1 or not running2:
+                    break
+                if self.change_frame:
+                    self.change_frame = False
+                    break
+            if not running1 or not running2:
+                break
+
+            if not self.pause:
+                self.frame_id += 1
 
         vis1.destroy_window()
         vis2.destroy_window()

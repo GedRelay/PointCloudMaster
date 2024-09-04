@@ -6,6 +6,10 @@
 @Description :  demo4 演示4, Filters和Tools的综合使用，构建由多个过滤器组成的自定义过滤函数
 """
 
+import sys
+import os
+sys.path.append(os.path.abspath('.'))
+
 from options import Options
 from utils.visualizer import Visualizer
 from utils.sceneloader import SceneLoader

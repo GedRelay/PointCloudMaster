@@ -6,6 +6,10 @@
 @Description :  demo2 演示2, id为98的点云为灰色，其他点云为橙色，此外为每个id绘制候选框
 """
 
+import sys
+import os
+sys.path.append(os.path.abspath('.'))
+
 from options import Options
 from utils.visualizer import Visualizer
 from utils.sceneloader import SceneLoader
