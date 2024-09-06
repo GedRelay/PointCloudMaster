@@ -16,7 +16,8 @@ PointCloudMaster
 │  ├─demo2.py
 │  ├─demo3.py
 │  ├─demo4.py
-│  └─demo5.py
+│  ├─demo5.py
+│  └─demo6.py
 ├─utils
 │  ├─filters.py
 │  ├─sceneloader.py
@@ -39,7 +40,7 @@ PointCloudMaster
 
 安装：
 
-1. python 版本为 3.8.18
+1. 作者的python版本为3.8.18, 请确保你使用的环境中python版本为3.8
 
 2. 运行`pip install -r requirements.txt` 指令安装依赖
 

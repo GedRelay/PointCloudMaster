@@ -47,12 +47,16 @@ class Visualizer():
 
 
 
-    def draw_points(self, points, other_data=None, axis=5, init_camera_rpy=None,
-                    init_camera_T=None):
+    def draw_points(self, points, other_data=None, form="point", point_size=4.0, voxel_size=0.5, octree_max_depth=8,
+                    axis=5, init_camera_rpy=None, init_camera_T=None):
         '''
         绘制点云
         :param points: 点云 N*3
         :param other_data: 其他数据, 可能包含颜色color, 候选框bbox, 箭头arrows等
+        :param form: 绘制形式, point表示点云, voxel表示体素化, octree表示八叉树, empty表示不绘制
+        :param point_size: 点云大小，当form为point时有效
+        :param voxel_size: 体素大小，当form为voxel时有效
+        :param octree_max_depth: 八叉树最大深度，当form为octree时有效
         :param axis: 坐标轴大小, None表示不绘制坐标轴
         :param init_camera_rpy: 相机初始姿态 [roll, pitch, yaw]
         :param init_camera_T: 相机初始位置 [x, y, z]
@@ -67,7 +71,7 @@ class Visualizer():
         vis.get_render_option().background_color = np.asarray(self.opt.background_color)
 
         # 点云大小
-        vis.get_render_option().point_size = self.opt.point_size
+        vis.get_render_option().point_size = point_size
 
         # 点云
         pcd = o3d.geometry.PointCloud()
@@ -77,7 +81,19 @@ class Visualizer():
         if other_data is not None and 'pointinfo-color' in other_data.keys():
             pcd.colors = o3d.utility.Vector3dVector(other_data['pointinfo-color'])
 
-        vis.add_geometry(pcd)
+        if form == "point":
+            vis.add_geometry(pcd)
+        elif form == "voxel":
+            voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd, voxel_size=voxel_size)
+            vis.add_geometry(voxel_grid)
+        elif form == "octree":
+            octree = o3d.geometry.Octree(max_depth=octree_max_depth)
+            octree.convert_from_point_cloud(pcd, size_expand=0.01)
+            vis.add_geometry(octree)
+        elif form == "empty":
+            pass
+        else:
+            assert False, "form参数错误"
 
         # 候选框
         if other_data is not None and 'geometry-bboxes' in other_data.keys():
@@ -133,11 +149,16 @@ class Visualizer():
         vis.destroy_window()
 
 
-    def draw_one_frame(self, scene, frame_id, axis=5, filter=None, init_camera_rpy=None, init_camera_T=None):
+    def draw_one_frame(self, scene, frame_id, form="point", point_size=4.0, voxel_size=0.5, octree_max_depth=8,
+                        axis=5, filter=None, init_camera_rpy=None, init_camera_T=None):
         '''
         绘制场景的某一帧
         :param scene: 场景加载器
         :param frame_id: 帧id
+        :param form: 绘制形式, point表示点云, voxel表示体素化, octree表示八叉树, empty表示不绘制
+        :param point_size: 点云大小，当form为point时有效
+        :param voxel_size: 体素大小，当form为voxel时有效
+        :param octree_max_depth: 八叉树最大深度，当form为octree时有效
         :param axis: 坐标轴大小, None表示不绘制坐标轴
         :param filter: 过滤函数
         :param init_camera_rpy: 相机初始姿态 [roll, pitch, yaw]
@@ -147,18 +168,25 @@ class Visualizer():
 
         pcd_xyz, other_data = scene.get_frame(frame_id=frame_id, filter=filter)
 
-        self.draw_points(pcd_xyz, other_data, axis=axis, init_camera_rpy=init_camera_rpy, init_camera_T=init_camera_T)
+        self.draw_points(pcd_xyz, other_data, form=form, point_size=point_size, voxel_size=voxel_size,
+                            octree_max_depth=octree_max_depth, axis=axis, init_camera_rpy=init_camera_rpy,
+                            init_camera_T=init_camera_T)
 
 
 
-    def play_scene(self, scene, begin=0, end=-1, delay_time=0.1, axis=5, filter=None, init_camera_rpy=None,
-                    init_camera_T=None):
+    def play_scene(self, scene, begin=0, end=-1, delay_time=0.1,
+                    form="point", point_size=4.0, voxel_size=0.5, octree_max_depth=8,
+                    axis=5, filter=None, init_camera_rpy=None, init_camera_T=None):
         '''
         播放场景
         :param scene: 场景加载器
         :param begin: 开始帧
         :param end: 结束帧, -1表示最后一帧
         :param delay_time: 延迟时间
+        :param form: 绘制形式, point表示点云, voxel表示体素化, octree表示八叉树, empty表示不绘制
+        :param point_size: 点云大小，当form为point时有效
+        :param voxel_size: 体素大小，当form为voxel时有效
+        :param octree_max_depth: 八叉树最大深度，当form为octree时有效
         :param axis: 坐标轴大小, None表示不绘制坐标轴
         :param filter: 过滤函数
         :param init_camera_rpy: 相机初始姿态 [roll, pitch, yaw]
@@ -177,7 +205,7 @@ class Visualizer():
         vis.get_render_option().background_color = np.asarray(self.opt.background_color)
 
         # 点云大小
-        vis.get_render_option().point_size = self.opt.point_size
+        vis.get_render_option().point_size = point_size
 
         reset_view = False
 
@@ -209,7 +237,19 @@ class Visualizer():
             if 'pointinfo-color' in other_data.keys():
                 pcd.colors = o3d.utility.Vector3dVector(other_data['pointinfo-color'])
 
-            vis.add_geometry(pcd, reset_bounding_box=False)
+            if form == "point":
+                vis.add_geometry(pcd, reset_bounding_box=False)
+            elif form == "voxel":
+                voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd, voxel_size=voxel_size)
+                vis.add_geometry(voxel_grid, reset_bounding_box=False)
+            elif form == "octree":
+                octree = o3d.geometry.Octree(max_depth=octree_max_depth)
+                octree.convert_from_point_cloud(pcd, size_expand=0.01)
+                vis.add_geometry(octree, reset_bounding_box=False)
+            elif form == "empty":
+                pass
+            else:
+                assert False, "form参数错误"
 
             # 候选框
             if 'geometry-bboxes' in other_data.keys():
@@ -316,14 +356,24 @@ class Visualizer():
         self.draw_points(points_world, axis=axis)
 
 
-    def compare_two_point_clouds(self, pcd_xyz1, pcd_xyz2, other_data1=None, other_data2=None, axis=5,
-                                init_camera_rpy=None, init_camera_T=None):
+    def compare_two_point_clouds(self, pcd_xyz1, pcd_xyz2, other_data1=None, other_data2=None,
+                                    form1="point", point_size1=4.0, voxel_size1=0.5, octree_max_depth1=8,
+                                    form2="point", point_size2=4.0, voxel_size2=0.5, octree_max_depth2=8,
+                                    axis=5, init_camera_rpy=None, init_camera_T=None):
         '''
         比较两个点云, 同步视角显示
         :param pcd_xyz1: 点云1
         :param pcd_xyz2: 点云2
         :param other_data1: 其他数据1, 可能包含颜色color, 候选框bbox, 箭头arrows等
         :param other_data2: 其他数据2, 可能包含颜色color, 候选框bbox, 箭头arrows等
+        :param form1: 点云1绘制形式, point表示点云, voxel表示体素化, octree表示八叉树, empty表示不绘制
+        :param point_size1: 点云1大小，当form1为point时有效
+        :param voxel_size1: 点云1体素大小，当form1为voxel时有效
+        :param octree_max_depth1: 点云1八叉树最大深度，当form1为octree时有效
+        :param form2: 点云2绘制形式, point表示点云, voxel表示体素化, octree表示八叉树, empty表示不绘制
+        :param point_size2: 点云2大小，当form2为point时有效
+        :param voxel_size2: 点云2体素大小，当form2为voxel时有效
+        :param octree_max_depth2: 点云2八叉树最大深度，当form2为octree时有效
         :param axis: 坐标轴大小, None表示不绘制坐标轴
         :param init_camera_rpy: 相机初始姿态 [roll, pitch, yaw]
         :param init_camera_T: 相机初始位置 [x, y, z]
@@ -344,8 +394,8 @@ class Visualizer():
         vis2.get_render_option().background_color = np.asarray(self.opt.background_color)
 
         # 点云大小
-        vis1.get_render_option().point_size = self.opt.point_size
-        vis2.get_render_option().point_size = self.opt.point_size
+        vis1.get_render_option().point_size = point_size1
+        vis2.get_render_option().point_size = point_size2
 
         # 坐标轴
         if axis is not None:
@@ -365,8 +415,33 @@ class Visualizer():
         if other_data2 is not None and 'pointinfo-color' in other_data2.keys():
             pcd2.colors = o3d.utility.Vector3dVector(other_data2['pointinfo-color'])
 
-        vis1.add_geometry(pcd1)
-        vis2.add_geometry(pcd2)
+        if form1 == "point":
+            vis1.add_geometry(pcd1)
+        elif form1 == "voxel":
+            voxel_grid1 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd1, voxel_size=voxel_size1)
+            vis1.add_geometry(voxel_grid1)
+        elif form1 == "octree":
+            octree1 = o3d.geometry.Octree(max_depth=octree_max_depth1)
+            octree1.convert_from_point_cloud(pcd1, size_expand=0.01)
+            vis1.add_geometry(octree1)
+        elif form1 == "empty":
+            pass
+        else:
+            assert False, "form1参数错误"
+
+        if form2 == "point":
+            vis2.add_geometry(pcd2)
+        elif form2 == "voxel":
+            voxel_grid2 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd2, voxel_size=voxel_size2)
+            vis2.add_geometry(voxel_grid2)
+        elif form2 == "octree":
+            octree2 = o3d.geometry.Octree(max_depth=octree_max_depth2)
+            octree2.convert_from_point_cloud(pcd2, size_expand=0.01)
+            vis2.add_geometry(octree2)
+        elif form2 == "empty":
+            pass
+        else:
+            assert False, "form2参数错误"
 
         # 候选框
         if other_data1 is not None and 'geometry-bboxes' in other_data1.keys():
@@ -445,6 +520,8 @@ class Visualizer():
 
 
     def compare_one_frame(self, scene, frame_id, axis=5, filter1=None, filter2=None,
+                            form1="point", point_size1=4.0, voxel_size1=0.5, octree_max_depth1=8,
+                            form2="point", point_size2=4.0, voxel_size2=0.5, octree_max_depth2=8,
                             init_camera_rpy=None, init_camera_T=None):
         '''
         比较两个过滤器的结果，同步视角显示
@@ -453,6 +530,14 @@ class Visualizer():
         :param axis: 坐标轴大小, None表示不绘制坐标轴
         :param filter1: 过滤函数1
         :param filter2: 过滤函数2
+        :param form1: 点云1绘制形式, point表示点云, voxel表示体素化, octree表示八叉树, empty表示不绘制
+        :param point_size1: 点云1大小，当form1为point时有效
+        :param voxel_size1: 点云1体素大小，当form1为voxel时有效
+        :param octree_max_depth1: 点云1八叉树最大深度，当form1为octree时有效
+        :param form2: 点云2绘制形式, point表示点云, voxel表示体素化, octree表示八叉树, empty表示不绘制
+        :param point_size2: 点云2大小，当form2为point时有效
+        :param voxel_size2: 点云2体素大小，当form2为voxel时有效
+        :param octree_max_depth2: 点云2八叉树最大深度，当form2为octree时有效
         :param init_camera_rpy: 相机初始姿态 [roll, pitch, yaw]
         :param init_camera_T: 相机初始位置 [x, y, z]
         :return:
@@ -461,12 +546,16 @@ class Visualizer():
         pcd_xyz1, other_data1 = scene.get_frame(frame_id=frame_id, filter=filter1)
         pcd_xyz2, other_data2 = scene.get_frame(frame_id=frame_id, filter=filter2)
 
-        self.compare_two_point_clouds(pcd_xyz1, pcd_xyz2, other_data1, other_data2, axis=axis,
-                                        init_camera_rpy=init_camera_rpy, init_camera_T=init_camera_T)
+        self.compare_two_point_clouds(pcd_xyz1, pcd_xyz2, other_data1, other_data2,
+                                        form1=form1, point_size1=point_size1, voxel_size1=voxel_size1, octree_max_depth1=octree_max_depth1,
+                                        form2=form2, point_size2=point_size2, voxel_size2=voxel_size2, octree_max_depth2=octree_max_depth2,
+                                        axis=axis, init_camera_rpy=init_camera_rpy, init_camera_T=init_camera_T)
 
 
-    def compare_scene(self, scene, filter1=None, filter2=None, delay_time=0.1, begin=0, end=-1, axis=5,
-                        init_camera_rpy=None, init_camera_T=None):
+    def compare_scene(self, scene, filter1=None, filter2=None, delay_time=0.1, begin=0, end=-1,
+                        form1="point", point_size1=4.0, voxel_size1=0.5, octree_max_depth1=8,
+                        form2="point", point_size2=4.0, voxel_size2=0.5, octree_max_depth2=8,
+                        axis=5, init_camera_rpy=None, init_camera_T=None):
         '''
         播放场景并比较两个过滤函数的结果, 同步视角显示
         :param scene: 场景加载器
@@ -475,6 +564,14 @@ class Visualizer():
         :param delay_time: 延迟时间
         :param begin: 开始帧, 从0开始
         :param end: 结束帧, -1表示最后一帧
+        :param form1: 点云1绘制形式, point表示点云, voxel表示体素化, octree表示八叉树, empty表示不绘制
+        :param point_size1: 点云1大小，当form1为point时有效
+        :param voxel_size1: 点云1体素大小，当form1为voxel时有效
+        :param octree_max_depth1: 点云1八叉树最大深度，当form1为octree时有效
+        :param form2: 点云2绘制形式, point表示点云, voxel表示体素化, octree表示八叉树, empty表示不绘制
+        :param point_size2: 点云2大小，当form2为point时有效
+        :param voxel_size2: 点云2体素大小，当form2为voxel时有效
+        :param octree_max_depth2: 点云2八叉树最大深度，当form2为octree时有效
         :param axis: 坐标轴大小, None表示不绘制坐标轴
         :param init_camera_rpy: 相机初始姿态 [roll, pitch, yaw]
         :param init_camera_T: 相机初始位置 [x, y, z]
@@ -498,8 +595,8 @@ class Visualizer():
         vis2.get_render_option().background_color = np.asarray(self.opt.background_color)
 
         # 点云大小
-        vis1.get_render_option().point_size = self.opt.point_size
-        vis2.get_render_option().point_size = self.opt.point_size
+        vis1.get_render_option().point_size = point_size1
+        vis2.get_render_option().point_size = point_size2
 
         # 点云
         pcd1 = o3d.geometry.PointCloud()
@@ -539,8 +636,33 @@ class Visualizer():
             if 'pointinfo-color' in other_data2.keys():
                 pcd2.colors = o3d.utility.Vector3dVector(other_data2['pointinfo-color'])
 
-            vis1.add_geometry(pcd1, reset_bounding_box=False)
-            vis2.add_geometry(pcd2, reset_bounding_box=False)
+            if form1 == "point":
+                vis1.add_geometry(pcd1, reset_bounding_box=False)
+            elif form1 == "voxel":
+                voxel_grid1 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd1, voxel_size=voxel_size1)
+                vis1.add_geometry(voxel_grid1, reset_bounding_box=False)
+            elif form1 == "octree":
+                octree1 = o3d.geometry.Octree(max_depth=octree_max_depth1)
+                octree1.convert_from_point_cloud(pcd1, size_expand=0.01)
+                vis1.add_geometry(octree1, reset_bounding_box=False)
+            elif form1 == "empty":
+                pass
+            else:
+                assert False, "form1参数错误"
+
+            if form2 == "point":
+                vis2.add_geometry(pcd2, reset_bounding_box=False)
+            elif form2 == "voxel":
+                voxel_grid2 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd2, voxel_size=voxel_size2)
+                vis2.add_geometry(voxel_grid2, reset_bounding_box=False)
+            elif form2 == "octree":
+                octree2 = o3d.geometry.Octree(max_depth=octree_max_depth2)
+                octree2.convert_from_point_cloud(pcd2, size_expand=0.01)
+                vis2.add_geometry(octree2, reset_bounding_box=False)
+            elif form2 == "empty":
+                pass
+            else:
+                assert False, "form2参数错误"
 
             # 候选框
             if 'geometry-bboxes' in other_data1.keys():
