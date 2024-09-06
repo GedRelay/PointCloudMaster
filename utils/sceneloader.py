@@ -170,7 +170,7 @@ class DatasetLoader_Carla1(DatasetLoader_Base):
         :return: other_data, 当前帧的其他数据
         '''
         # x, y, z, rv, vx, vy, vz, id, label, intensity
-        data = np.array(np.load(self.pcd_data_path + self.filenames[frame_id]).tolist())
+        data = np.load(self.pcd_data_path + self.filenames[frame_id])
         pcd_xyz = data[:, :3]
         other_data = {}
         other_data['pointinfo-rv'] = data[:, 3]
@@ -222,7 +222,7 @@ class DatasetLoader_Carla2(DatasetLoader_Base):
         :return: other_data, 当前帧的其他数据
         '''
         # x, y, z, cosangle, rv, vx, vy, vz, vcps, id, label, intensity
-        data = np.array(np.load(self.pcd_data_path + self.filenames[frame_id]).tolist())
+        data = np.load(self.pcd_data_path + self.filenames[frame_id])
         pcd_xyz = data[:, :3]
         other_data = {}
         other_data['pointinfo-rv'] = data[:, 4]
