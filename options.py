@@ -33,7 +33,6 @@ class Options():
 
         # 渲染参数
         self.parser.add_argument('--background_color', type=list, default=[1, 1, 1], help='背景颜色, 单值范围为[0, 1]')
-        self.parser.add_argument('--point_size', type=float, default=4.0, help='显示点云大小')
 
     def parse(self):
         '''
