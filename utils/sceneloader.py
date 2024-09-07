@@ -13,6 +13,8 @@ from utils.tools import Tools
 
 import tqdm
 
+import threading
+
 
 class SceneLoader():
     def __init__(self, opt):
@@ -51,11 +53,22 @@ class SceneLoader():
                                                                                                     self.opt.preload_begin,
                                                                                                     self.frame_num - 1)
 
-        bar = tqdm.tqdm(range(self.opt.preload_begin, self.opt.preload_end + 1), desc='数据预加载中（{}~{}帧）'.format(self.opt.preload_begin, self.opt.preload_end), ncols=100)
-        for frame_id in bar:
-            pcd_xyz, other_data = self.dataset_loader.load_frame(frame_id)
-            self.preload_pcd_xyz_dict[frame_id] = pcd_xyz
-            self.preload_other_data_dict[frame_id] = other_data
+        # 多线程预加载
+        with tqdm.tqdm(total=self.opt.preload_end - self.opt.preload_begin + 1, desc='数据预加载中（{}~{}帧）'.format(self.opt.preload_begin, self.opt.preload_end), ncols=100) as bar:
+            threads = []
+            for frame_id in range(self.opt.preload_begin, self.opt.preload_end + 1):
+                t = threading.Thread(target=self.__preload_data_thread, args=(frame_id, bar))
+                threads.append(t)
+                t.start()
+            for t in threads:
+                t.join()
+
+
+    def __preload_data_thread(self, frame_id, bar):
+        pcd_xyz, other_data = self.dataset_loader.load_frame(frame_id)
+        self.preload_pcd_xyz_dict[frame_id] = pcd_xyz
+        self.preload_other_data_dict[frame_id] = other_data
+        bar.update(1)
 
 
     def get_frame(self, frame_id, filter=None):

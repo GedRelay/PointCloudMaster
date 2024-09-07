@@ -46,7 +46,6 @@ class Visualizer():
         listener.start()
 
 
-
     def draw_points(self, points, other_data=None, form="point", point_size=4.0, voxel_size=0.5, octree_max_depth=8,
                     axis=5, init_camera_rpy=None, init_camera_T=None):
         '''
@@ -75,25 +74,26 @@ class Visualizer():
 
         # 点云
         pcd = o3d.geometry.PointCloud()
-        pcd.points = o3d.utility.Vector3dVector(points)
+        if points.shape[0] != 0:
+            pcd.points = o3d.utility.Vector3dVector(points)
 
-        # 颜色
-        if other_data is not None and 'pointinfo-color' in other_data.keys():
-            pcd.colors = o3d.utility.Vector3dVector(other_data['pointinfo-color'])
+            # 颜色
+            if other_data is not None and 'pointinfo-color' in other_data.keys():
+                pcd.colors = o3d.utility.Vector3dVector(other_data['pointinfo-color'])
 
-        if form == "point":
-            vis.add_geometry(pcd)
-        elif form == "voxel":
-            voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd, voxel_size=voxel_size)
-            vis.add_geometry(voxel_grid)
-        elif form == "octree":
-            octree = o3d.geometry.Octree(max_depth=octree_max_depth)
-            octree.convert_from_point_cloud(pcd, size_expand=0.01)
-            vis.add_geometry(octree)
-        elif form == "empty":
-            pass
-        else:
-            assert False, "form参数错误"
+            if form == "point":
+                vis.add_geometry(pcd)
+            elif form == "voxel":
+                voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd, voxel_size=voxel_size)
+                vis.add_geometry(voxel_grid)
+            elif form == "octree":
+                octree = o3d.geometry.Octree(max_depth=octree_max_depth)
+                octree.convert_from_point_cloud(pcd, size_expand=0.01)
+                vis.add_geometry(octree)
+            elif form == "empty":
+                pass
+            else:
+                assert False, "form参数错误"
 
         # 候选框
         if other_data is not None and 'geometry-bboxes' in other_data.keys():
@@ -219,7 +219,7 @@ class Visualizer():
 
         self.frame_id = begin
         while self.frame_id <= end:
-            # print("frame_id:", self.frame_id)
+            print("frame_id:", self.frame_id)
             # print("frame_name:", scene.dataset_loader.filenames[self.frame_id])
 
             # 移除上一帧的几何对象
@@ -231,25 +231,26 @@ class Visualizer():
 
             # 点云
             pcd_xyz, other_data = scene.get_frame(frame_id=self.frame_id, filter=filter)
-            pcd.points = o3d.utility.Vector3dVector(pcd_xyz)
+            if pcd_xyz.shape[0] != 0:
+                pcd.points = o3d.utility.Vector3dVector(pcd_xyz)
 
-            # 颜色
-            if 'pointinfo-color' in other_data.keys():
-                pcd.colors = o3d.utility.Vector3dVector(other_data['pointinfo-color'])
+                # 颜色
+                if 'pointinfo-color' in other_data.keys():
+                    pcd.colors = o3d.utility.Vector3dVector(other_data['pointinfo-color'])
 
-            if form == "point":
-                vis.add_geometry(pcd, reset_bounding_box=False)
-            elif form == "voxel":
-                voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd, voxel_size=voxel_size)
-                vis.add_geometry(voxel_grid, reset_bounding_box=False)
-            elif form == "octree":
-                octree = o3d.geometry.Octree(max_depth=octree_max_depth)
-                octree.convert_from_point_cloud(pcd, size_expand=0.01)
-                vis.add_geometry(octree, reset_bounding_box=False)
-            elif form == "empty":
-                pass
-            else:
-                assert False, "form参数错误"
+                if form == "point":
+                    vis.add_geometry(pcd, reset_bounding_box=False)
+                elif form == "voxel":
+                    voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd, voxel_size=voxel_size)
+                    vis.add_geometry(voxel_grid, reset_bounding_box=False)
+                elif form == "octree":
+                    octree = o3d.geometry.Octree(max_depth=octree_max_depth)
+                    octree.convert_from_point_cloud(pcd, size_expand=0.01)
+                    vis.add_geometry(octree, reset_bounding_box=False)
+                elif form == "empty":
+                    pass
+                else:
+                    assert False, "form参数错误"
 
             # 候选框
             if 'geometry-bboxes' in other_data.keys():
@@ -405,43 +406,47 @@ class Visualizer():
 
         # 点云
         pcd1 = o3d.geometry.PointCloud()
-        pcd1.points = o3d.utility.Vector3dVector(pcd_xyz1)
+        if pcd_xyz1.shape[0] != 0:
+            pcd1.points = o3d.utility.Vector3dVector(pcd_xyz1)
+
+            # 颜色
+            if other_data1 is not None and 'pointinfo-color' in other_data1.keys():
+                pcd1.colors = o3d.utility.Vector3dVector(other_data1['pointinfo-color'])
+
+            if form1 == "point":
+                vis1.add_geometry(pcd1)
+            elif form1 == "voxel":
+                voxel_grid1 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd1, voxel_size=voxel_size1)
+                vis1.add_geometry(voxel_grid1)
+            elif form1 == "octree":
+                octree1 = o3d.geometry.Octree(max_depth=octree_max_depth1)
+                octree1.convert_from_point_cloud(pcd1, size_expand=0.01)
+                vis1.add_geometry(octree1)
+            elif form1 == "empty":
+                pass
+            else:
+                assert False, "form1参数错误"
+
         pcd2 = o3d.geometry.PointCloud()
-        pcd2.points = o3d.utility.Vector3dVector(pcd_xyz2)
+        if pcd_xyz2.shape[0] != 0:
+            pcd2.points = o3d.utility.Vector3dVector(pcd_xyz2)
 
-        # 颜色
-        if other_data1 is not None and 'pointinfo-color' in other_data1.keys():
-            pcd1.colors = o3d.utility.Vector3dVector(other_data1['pointinfo-color'])
-        if other_data2 is not None and 'pointinfo-color' in other_data2.keys():
-            pcd2.colors = o3d.utility.Vector3dVector(other_data2['pointinfo-color'])
+            if other_data2 is not None and 'pointinfo-color' in other_data2.keys():
+                pcd2.colors = o3d.utility.Vector3dVector(other_data2['pointinfo-color'])
 
-        if form1 == "point":
-            vis1.add_geometry(pcd1)
-        elif form1 == "voxel":
-            voxel_grid1 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd1, voxel_size=voxel_size1)
-            vis1.add_geometry(voxel_grid1)
-        elif form1 == "octree":
-            octree1 = o3d.geometry.Octree(max_depth=octree_max_depth1)
-            octree1.convert_from_point_cloud(pcd1, size_expand=0.01)
-            vis1.add_geometry(octree1)
-        elif form1 == "empty":
-            pass
-        else:
-            assert False, "form1参数错误"
-
-        if form2 == "point":
-            vis2.add_geometry(pcd2)
-        elif form2 == "voxel":
-            voxel_grid2 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd2, voxel_size=voxel_size2)
-            vis2.add_geometry(voxel_grid2)
-        elif form2 == "octree":
-            octree2 = o3d.geometry.Octree(max_depth=octree_max_depth2)
-            octree2.convert_from_point_cloud(pcd2, size_expand=0.01)
-            vis2.add_geometry(octree2)
-        elif form2 == "empty":
-            pass
-        else:
-            assert False, "form2参数错误"
+            if form2 == "point":
+                vis2.add_geometry(pcd2)
+            elif form2 == "voxel":
+                voxel_grid2 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd2, voxel_size=voxel_size2)
+                vis2.add_geometry(voxel_grid2)
+            elif form2 == "octree":
+                octree2 = o3d.geometry.Octree(max_depth=octree_max_depth2)
+                octree2.convert_from_point_cloud(pcd2, size_expand=0.01)
+                vis2.add_geometry(octree2)
+            elif form2 == "empty":
+                pass
+            else:
+                assert False, "form2参数错误"
 
         # 候选框
         if other_data1 is not None and 'geometry-bboxes' in other_data1.keys():
@@ -600,9 +605,7 @@ class Visualizer():
 
         # 点云
         pcd1 = o3d.geometry.PointCloud()
-        vis1.add_geometry(pcd1)
         pcd2 = o3d.geometry.PointCloud()
-        vis2.add_geometry(pcd2)
 
         # 坐标轴
         if axis is not None:
@@ -626,43 +629,48 @@ class Visualizer():
 
             # 点云
             pcd_xyz1, other_data1 = scene.get_frame(frame_id=self.frame_id, filter=filter1)
-            pcd1.points = o3d.utility.Vector3dVector(pcd_xyz1)
+            if pcd_xyz1.shape[0] != 0:
+                pcd1.points = o3d.utility.Vector3dVector(pcd_xyz1)
+
+                # 颜色
+                if 'pointinfo-color' in other_data1.keys():
+                    pcd1.colors = o3d.utility.Vector3dVector(other_data1['pointinfo-color'])
+
+                if form1 == "point":
+                    vis1.add_geometry(pcd1, reset_bounding_box=False)
+                elif form1 == "voxel":
+                    voxel_grid1 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd1, voxel_size=voxel_size1)
+                    vis1.add_geometry(voxel_grid1, reset_bounding_box=False)
+                elif form1 == "octree":
+                    octree1 = o3d.geometry.Octree(max_depth=octree_max_depth1)
+                    octree1.convert_from_point_cloud(pcd1, size_expand=0.01)
+                    vis1.add_geometry(octree1, reset_bounding_box=False)
+                elif form1 == "empty":
+                    pass
+                else:
+                    assert False, "form1参数错误"
+
+
             pcd_xyz2, other_data2 = scene.get_frame(frame_id=self.frame_id, filter=filter2)
-            pcd2.points = o3d.utility.Vector3dVector(pcd_xyz2)
+            if pcd_xyz2.shape[0] != 0:
+                pcd2.points = o3d.utility.Vector3dVector(pcd_xyz2)
 
-            # 颜色
-            if 'pointinfo-color' in other_data1.keys():
-                pcd1.colors = o3d.utility.Vector3dVector(other_data1['pointinfo-color'])
-            if 'pointinfo-color' in other_data2.keys():
-                pcd2.colors = o3d.utility.Vector3dVector(other_data2['pointinfo-color'])
+                if 'pointinfo-color' in other_data2.keys():
+                    pcd2.colors = o3d.utility.Vector3dVector(other_data2['pointinfo-color'])
 
-            if form1 == "point":
-                vis1.add_geometry(pcd1, reset_bounding_box=False)
-            elif form1 == "voxel":
-                voxel_grid1 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd1, voxel_size=voxel_size1)
-                vis1.add_geometry(voxel_grid1, reset_bounding_box=False)
-            elif form1 == "octree":
-                octree1 = o3d.geometry.Octree(max_depth=octree_max_depth1)
-                octree1.convert_from_point_cloud(pcd1, size_expand=0.01)
-                vis1.add_geometry(octree1, reset_bounding_box=False)
-            elif form1 == "empty":
-                pass
-            else:
-                assert False, "form1参数错误"
-
-            if form2 == "point":
-                vis2.add_geometry(pcd2, reset_bounding_box=False)
-            elif form2 == "voxel":
-                voxel_grid2 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd2, voxel_size=voxel_size2)
-                vis2.add_geometry(voxel_grid2, reset_bounding_box=False)
-            elif form2 == "octree":
-                octree2 = o3d.geometry.Octree(max_depth=octree_max_depth2)
-                octree2.convert_from_point_cloud(pcd2, size_expand=0.01)
-                vis2.add_geometry(octree2, reset_bounding_box=False)
-            elif form2 == "empty":
-                pass
-            else:
-                assert False, "form2参数错误"
+                if form2 == "point":
+                    vis2.add_geometry(pcd2, reset_bounding_box=False)
+                elif form2 == "voxel":
+                    voxel_grid2 = o3d.geometry.VoxelGrid.create_from_point_cloud(pcd2, voxel_size=voxel_size2)
+                    vis2.add_geometry(voxel_grid2, reset_bounding_box=False)
+                elif form2 == "octree":
+                    octree2 = o3d.geometry.Octree(max_depth=octree_max_depth2)
+                    octree2.convert_from_point_cloud(pcd2, size_expand=0.01)
+                    vis2.add_geometry(octree2, reset_bounding_box=False)
+                elif form2 == "empty":
+                    pass
+                else:
+                    assert False, "form2参数错误"
 
             # 候选框
             if 'geometry-bboxes' in other_data1.keys():
