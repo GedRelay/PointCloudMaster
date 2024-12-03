@@ -5,14 +5,11 @@
 @Email       :  gedrelay@stu.jnu.edu.cn
 @Description :  demo4 演示4, Filters和Tools的综合使用，构建由多个过滤器组成的自定义过滤函数
 """
-
 import sys
 sys.path.append('.')
-from options import Options
-from utils.visualizer import Visualizer
-from utils.sceneloader import SceneLoader
-from utils.filters import Filters
-from utils.tools import Tools
+from options import options  # 导入参数设置
+from sceneloader import SceneLoader  # 导入场景加载器
+from utils import Visualizer, Tools, Filters
 
 def filter(pcd_xyz, other_data):
     '''
@@ -39,7 +36,7 @@ def filter(pcd_xyz, other_data):
 
 
 if __name__ == '__main__':
-    opt = Options().parse()
+    opt = options()
     opt.dataset = 'carla1'
     opt.scene_id = 0
 

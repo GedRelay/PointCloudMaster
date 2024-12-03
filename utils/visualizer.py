@@ -560,9 +560,9 @@ class Visualizer():
     def compare_scene(self, scene, filter1=None, filter2=None, delay_time=0.1, begin=0, end=-1,
                         form1="point", point_size1=4.0, voxel_size1=0.5, octree_max_depth1=8,
                         form2="point", point_size2=4.0, voxel_size2=0.5, octree_max_depth2=8,
-                        axis=5, init_camera_rpy=None, init_camera_T=None):
+                        axis=5, init_camera_rpy=None, init_camera_T=None, camera_sync=True):
         '''
-        播放场景并比较两个过滤函数的结果, 同步视角显示
+        播放场景并比较两个过滤函数的结果, 默认开启同步视角显示
         :param scene: 场景加载器
         :param filter1: 过滤函数1
         :param filter2: 过滤函数2
@@ -580,6 +580,7 @@ class Visualizer():
         :param axis: 坐标轴大小, None表示不绘制坐标轴
         :param init_camera_rpy: 相机初始姿态 [roll, pitch, yaw]
         :param init_camera_T: 相机初始位置 [x, y, z]
+        :param camera_sync: 是否同步相机视角
         :return:
         '''
         if end == -1:
@@ -724,11 +725,13 @@ class Visualizer():
 
                 reset_view = True
 
-            cam1 = vis1.get_view_control().convert_to_pinhole_camera_parameters()
-            vis2.get_view_control().convert_from_pinhole_camera_parameters(cam1)
+            if camera_sync:
+                cam1 = vis1.get_view_control().convert_to_pinhole_camera_parameters()
+                vis2.get_view_control().convert_from_pinhole_camera_parameters(cam1)
             running1 = vis1.poll_events()
-            cam2 = vis2.get_view_control().convert_to_pinhole_camera_parameters()
-            vis1.get_view_control().convert_from_pinhole_camera_parameters(cam2)
+            if camera_sync:
+                cam2 = vis2.get_view_control().convert_to_pinhole_camera_parameters()
+                vis1.get_view_control().convert_from_pinhole_camera_parameters(cam2)
             running2 = vis2.poll_events()
             vis1.update_renderer()
             vis2.update_renderer()
@@ -738,11 +741,13 @@ class Visualizer():
             # 延时处理事件和渲染
             start_time = time.time()
             while time.time() - start_time < delay_time:
-                cam1 = vis1.get_view_control().convert_to_pinhole_camera_parameters()
-                vis2.get_view_control().convert_from_pinhole_camera_parameters(cam1)
+                if camera_sync:
+                    cam1 = vis1.get_view_control().convert_to_pinhole_camera_parameters()
+                    vis2.get_view_control().convert_from_pinhole_camera_parameters(cam1)
                 running1 = vis1.poll_events()
-                cam2 = vis2.get_view_control().convert_to_pinhole_camera_parameters()
-                vis1.get_view_control().convert_from_pinhole_camera_parameters(cam2)
+                if camera_sync:
+                    cam2 = vis2.get_view_control().convert_to_pinhole_camera_parameters()
+                    vis1.get_view_control().convert_from_pinhole_camera_parameters(cam2)
                 running2 = vis2.poll_events()
                 vis1.update_renderer()
                 vis2.update_renderer()
@@ -753,11 +758,13 @@ class Visualizer():
 
             # 处理键盘事件
             while self.pause:
-                cam1 = vis1.get_view_control().convert_to_pinhole_camera_parameters()
-                vis2.get_view_control().convert_from_pinhole_camera_parameters(cam1)
+                if camera_sync:
+                    cam1 = vis1.get_view_control().convert_to_pinhole_camera_parameters()
+                    vis2.get_view_control().convert_from_pinhole_camera_parameters(cam1)
                 running1 = vis1.poll_events()
-                cam2 = vis2.get_view_control().convert_to_pinhole_camera_parameters()
-                vis1.get_view_control().convert_from_pinhole_camera_parameters(cam2)
+                if camera_sync:
+                    cam2 = vis2.get_view_control().convert_to_pinhole_camera_parameters()
+                    vis1.get_view_control().convert_from_pinhole_camera_parameters(cam2)
                 running2 = vis2.poll_events()
                 vis1.update_renderer()
                 vis2.update_renderer()

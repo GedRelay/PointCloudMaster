@@ -19,17 +19,21 @@ PointCloudMaster
 │  ├─demo5.py
 │  └─demo6.py
 ├─utils
+│  ├─__init__.py
 │  ├─filters.py
-│  ├─sceneloader.py
 │  ├─tools.py
 │  └─visualizer.py
+├─sceneloader
+│  ├─__init__.py
+│  └─scene_loader.py
 ├─options.py
 ├─requirements.txt
 └─README.md
 ```
 
 - `demo`：帮助你快速上手的演示示例
-- `utils`：核心文件
+- `utils`：包含可视化工具以及其他工具函数
+- `sceneloader`：数据加载相关文件
 - `options.py`：默认运行参数
 - `requirements.txt`：项目依赖包列表
 - `README.md`：就是你现在在看的这个文档
@@ -87,35 +91,64 @@ PointCloudMaster
 
 # 如何添加自定义数据集
 
-1. 继承 `utils/sceneloader.py` 中的 `DatasetLoader_Base` 类
+1. 在`sceneloader/datasets.json`中按照格式添加数据集每个场景的点云存放目录以及位姿文件位置
 
-2. 实现相关函数，可以参考`utils/sceneloader.py`中的其他继承了该类的子类的实现
-   1.  `init_root_path(self)`：初始化数据集文件路径
-   2.  `init_pcd_data_path(self, scene_id)`：初始化场景数据路径
-   3.  `load_frame(self, frame_id)`：加载某一帧的数据。返回一个大小为 `N*3` 的 `numpy` 点云数据`pcd_xyz`，和一个字典`other_data`，该字典的key为字符串，值为对应数据。每个数据集包含的数据都有区别，这些数据都被存放在`other_data`中
-   4.  `load_poses(self, scene_id)`：加载所有帧的位姿。返回旋转矩阵的列表`Rs`和平移向量的列表`Ts`，`Rs`中每个元素为大小为`3*3`的`numpy`数组，`Ts`中每个元素为长度为`3`的`numpy`数组。如果该数据集没有位姿信息，可以引起报错信息如 `raise Exception('该数据集没有位姿信息')` 
+```json
+{
+  "datasets": 
+  [
+    ...其他数据集
 
-3. 在`SceneLoader`类的`__init__`函数中，添加根据数据集名称实例化dataset_loader的代码，如
+    {
+      "name": "这里填写数据集的名字，不要与其他数据集相同",
+      "root_path": "数据集根目录位置",
+      "scenes": [
+        {
+          "scene_id": 0,
+          "pcd_path": "0号场景点云存放目录，确保该目录下只有点云文件",
+          "pose_path": "0号场景位姿文件位置，如果没有则填写null"
+        },
+        {
+          "scene_id": 1,
+          "pcd_path": "1号场景点云存放目录，确保该目录下只有点云文件",
+          "pose_path": null
+        },
+        ...
+      ]
+    }
+
+  ]
+}
+```
+
+2. 在`sceneloader`目录下添加python文件，文件命名为：`数据集名字.py`
+    1. 文件中按照以下模板进行实现，注意：类的命名要为`数据集名字`
+    2.  `load_frame(self, frame_id)`：加载某一帧的数据。返回一个大小为 `N*3` 的 `numpy` 点云数据`pcd_xyz`，和一个字典`other_data`，该字典的key为字符串，值为对应数据。每个数据集包含的数据都有区别，这些数据都被存放在`other_data`中
+    3.  `load_poses(self, scene_id)`：加载所有帧的位姿。返回旋转矩阵的列表`Rs`和平移向量的列表`Ts`，`Rs`中每个元素为大小为`3*3`的`numpy`数组，`Ts`中每个元素为长度为`3`的`numpy`数组。如果该数据集没有位姿信息，则不需要实现该函数
 
 ```python
-if self.opt.dataset == 'carla1':
-	self.dataset_loader = DatasetLoader_Carla1(self.opt.scene_id)
-elif self.opt.dataset == 'carla2':
-	self.dataset_loader = DatasetLoader_Carla2(self.opt.scene_id)
-elif self.opt.dataset == 'aeva':
-	self.dataset_loader = DatasetLoader_Aeva(self.opt.scene_id)
-elif self.opt.dataset == 'helipr':
-	self.dataset_loader = DatasetLoader_Helipr(self.opt.scene_id)
-    # 添加如下代码
-elif self.opt.dataset == 'my_dataset':
-	self.dataset_loader = DatasetLoader_MYDATASET(self.opt.scene_id)
+from sceneloader import DatasetLoader_Base
+import os
+import numpy as np
+
+class name(DatasetLoader_Base):
+    def __init__(self, scene_id, json_data):
+        super(DatasetLoader_Name, self).__init__(scene_id, json_data)
+
+    def load_frame(self, frame_id):
+        pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
+        # 在此实现方法以读取点云
+        ...
+
+    def load_poses(self, scene_id):
+        # 在此实现方法以读取位姿，如果没有位姿数据则可以不实现
 ```
 
 
 
 ## other_data说明
 
-`other_data`是点云数据中除了`x,y,z`以外的所有数据，是为了方便后续进行点云处理设计的
+`other_data`是点云数据中除了`x,y,z`以外的所有数据。由于不同数据集的点云字段各不相同，因此设计了该数据结构
 
 `other_data`是一个字典，键为字符串，值为任意其他数据。注意，字符串的命名根据其作用是具有一定的要求的：
 

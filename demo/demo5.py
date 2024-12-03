@@ -5,13 +5,11 @@
 @Email       :  gedrelay@stu.jnu.edu.cn
 @Description :  demo5.py 对比两个窗口的点云
 """
-
 import sys
 sys.path.append('.')
-from options import Options
-from utils.visualizer import Visualizer
-from utils.sceneloader import SceneLoader
-from utils.filters import Filters
+from options import options  # 导入参数设置
+from sceneloader import SceneLoader  # 导入场景加载器
+from utils import Visualizer, Filters
 
 import numpy as np
 
@@ -50,7 +48,7 @@ def filter2(pcd_xyz, other_data):
 
 
 if __name__ == '__main__':
-    opt = Options().parse()
+    opt = options()
     opt.window_left = 0
     opt.dataset = 'carla1'
     opt.scene_id = 0

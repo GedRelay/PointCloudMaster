@@ -5,13 +5,11 @@
 @Email       :  gedrelay@stu.jnu.edu.cn
 @Description :  demo2 演示2, id为98的点云为灰色，其他点云为橙色，此外为每个id绘制候选框
 """
-
 import sys
 sys.path.append('.')
-from options import Options
-from utils.visualizer import Visualizer
-from utils.sceneloader import SceneLoader
-from utils.tools import Tools  # 工具类，使用其中的get_bbox_from_points函数从点云中获取包围盒
+from options import options
+from sceneloader import SceneLoader  # 导入场景加载器
+from utils import Visualizer, Tools  # 工具类，使用其中的get_bbox_from_points函数从点云中获取包围盒
 import numpy as np
 
 def filter(pcd_xyz, other_data):
@@ -42,7 +40,7 @@ def filter(pcd_xyz, other_data):
 
 
 if __name__ == '__main__':
-    opt = Options().parse()
+    opt = options()
     opt.dataset = 'carla1'
     opt.scene_id = 0
     visualizer = Visualizer(opt)

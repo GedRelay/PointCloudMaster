@@ -1,0 +1,105 @@
+{
+  "datasets":
+  [
+    {
+      "name": "carla1",
+      "root_path": "M:\\datasetsss\\4Dpcd",
+      "scenes": [
+        {
+          "scene_id": 0,
+          "pcd_path": "M:\\datasetsss\\4Dpcd\\Scene1",
+          "pose_path": null
+        },
+        {
+          "scene_id": 1,
+          "pcd_path": "M:\\datasetsss\\4Dpcd\\Scene2",
+          "pose_path": null
+        }
+      ]
+    },
+
+    {
+      "name": "carla2",
+      "root_path": "M:\\datasetsss\\4Dcarla_compensate_demo",
+      "scenes": [
+        {
+          "scene_id": 0,
+          "pcd_path": "M:\\datasetsss\\4Dcarla_compensate_demo\\carla_compensate_demo",
+          "pose_path": "M:\\datasetsss\\4Dcarla_compensate_demo\\poses.csv"
+        }
+      ]
+    },
+
+    {
+      "name": "aeva",
+      "root_path": "M:\\datasetsss\\aeva",
+      "scenes": [
+        {
+          "scene_id": 0,
+          "pcd_path": "M:\\datasetsss\\aeva\\00\\frames",
+          "pose_path": "M:\\datasetsss\\aeva\\00\\aeva_poses.txt"
+        },
+        {
+          "scene_id": 1,
+          "pcd_path": "M:\\datasetsss\\aeva\\01\\frames",
+          "pose_path": "M:\\datasetsss\\aeva\\01\\aeva_poses.txt"
+        },
+        {
+          "scene_id": 2,
+          "pcd_path": "M:\\datasetsss\\aeva\\02\\frames",
+          "pose_path": "M:\\datasetsss\\aeva\\02\\aeva_poses.txt"
+        },
+        {
+          "scene_id": 3,
+          "pcd_path": "M:\\datasetsss\\aeva\\03\\frames",
+          "pose_path": "M:\\datasetsss\\aeva\\03\\aeva_poses.txt"
+        },
+        {
+          "scene_id": 4,
+          "pcd_path": "M:\\datasetsss\\aeva\\04\\frames",
+          "pose_path": "M:\\datasetsss\\aeva\\04\\aeva_poses.txt"
+        },
+        {
+          "scene_id": 5,
+          "pcd_path": "M:\\datasetsss\\aeva\\05\\frames",
+          "pose_path": "M:\\datasetsss\\aeva\\05\\aeva_poses.txt"
+        },
+        {
+          "scene_id": 6,
+          "pcd_path": "M:\\datasetsss\\aeva\\06\\frames",
+          "pose_path": "M:\\datasetsss\\aeva\\06\\aeva_poses.txt"
+        },
+        {
+          "scene_id": 7,
+          "pcd_path": "M:\\datasetsss\\aeva\\07\\frames",
+          "pose_path": "M:\\datasetsss\\aeva\\07\\aeva_poses.txt"
+        }
+      ]
+    },
+
+    {
+      "name": "helipr",
+      "root_path": "M:\\datasetsss\\HeLiPR",
+      "scenes": [
+        {
+          "scene_id": 0,
+          "pcd_path": "M:\\datasetsss\\HeLiPR\\KAIST05\\LiDAR\\Aeva",
+          "pose_path": null
+        }
+      ]
+    },
+
+    {
+      "name": "carla3",
+      "root_path": "M:\\datasetsss\\carla_4d\\record_2024_0928_1819",
+      "scenes": [
+        {
+          "scene_id": 0,
+          "pcd_path": "M:\\datasetsss\\carla_4d\\record_2024_0928_1819\\vehicle.tesla.model3.master\\velodyne_semantic",
+          "pose_path": "M:\\datasetsss\\carla_4d\\record_2024_0928_1819\\vehicle.tesla.model3.master\\poses.csv"
+        }
+      ]
+    }
+
+  ]
+}

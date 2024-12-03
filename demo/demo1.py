@@ -5,12 +5,11 @@
 @Email       :  gedrelay@stu.jnu.edu.cn
 @Description :  demo1 演示1, 通过场景加载器加载场景并进行可视化, 使用过滤函数可视化过滤后的点云
 """
-
 import sys
 sys.path.append('.')
-from options import Options
-from utils.visualizer import Visualizer
-from utils.sceneloader import SceneLoader
+from options import options  # 导入参数设置
+from sceneloader import SceneLoader  # 导入场景加载器
+from utils import Visualizer  # 导入可视化工具
 
 def filter(pcd_xyz, other_data):
     '''
@@ -32,7 +31,7 @@ def filter(pcd_xyz, other_data):
 
 
 if __name__ == '__main__':
-    opt = Options().parse()
+    opt = options()
     opt.dataset = 'carla1'
     opt.scene_id = 0
     visualizer = Visualizer(opt)

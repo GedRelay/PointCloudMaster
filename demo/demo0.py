@@ -5,17 +5,16 @@
 @Email       :  gedrelay@stu.jnu.edu.cn
 @Description :  demo0, 演示0，可视化点云
 """
-
 import sys
 sys.path.append('.')
-from options import Options  # 导入参数设置
-from utils.visualizer import Visualizer  # 导入可视化工具
-from utils.sceneloader import SceneLoader  # 导入场景加载工具
+from options import options  # 导入参数设置
+from sceneloader import SceneLoader  # 导入场景加载器
+from utils import Visualizer  # 导入可视化工具
 
 
 if __name__ == '__main__':
-    # 设置参数, 也可以在命令行中设置，或者使用options.py的默认参数
-    opt = Options().parse()
+    # 设置参数, 也可以在命令行中设置或者使用options.py的默认参数
+    opt = options()
     opt.dataset = 'carla1'
     opt.scene_id = 0
     opt.preload = True  # 预加载

@@ -5,18 +5,17 @@
 @Email       :  gedrelay@stu.jnu.edu.cn
 @Description :  demo3, 演示3, 查看全局地图
 """
-
 import sys
 sys.path.append('.')
-from options import Options
-from utils.visualizer import Visualizer
-from utils.sceneloader import SceneLoader
+from options import options  # 导入参数设置
+from sceneloader import SceneLoader  # 导入场景加载器
+from utils import Visualizer  # 导入可视化工具
 
 if __name__ == '__main__':
-    opt = Options().parse()
+    opt = options()
 
     # 设置参数
-    opt.dataset = 'carla2'
+    opt.dataset = 'carla3'
     opt.scene_id = 0
 
     # 加载场景
