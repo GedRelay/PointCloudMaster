@@ -11,27 +11,6 @@ class Filters():
         pass
 
     @staticmethod
-    def xyz2v(pcd_xyz, other_data, compensate=False):
-        '''
-        将三维空间点云转换为速度空间点云
-        :param pcd_xyz: 点云 [N, 3]
-        :param other_data: 其他数据，必须包含 rv 或者 vcps
-        :param compensate: 是否是补偿速度
-        :return: pcd_v, other_data
-        '''
-        import numpy as np
-
-        if compensate:
-            v = other_data['pointinfo-vcps']
-        else:
-            v = other_data['pointinfo-rv']
-
-        pcd_xyz = pcd_xyz / np.linalg.norm(pcd_xyz, axis=1, keepdims=True)
-        pcd_v = -pcd_xyz * v.reshape(-1, 1)
-
-        return pcd_v, other_data
-
-    @staticmethod
     def add_noise_v(pcd_xyz, other_data, mean=0, std=0.1, compensate=False):
         '''
         为速度添加高斯噪声

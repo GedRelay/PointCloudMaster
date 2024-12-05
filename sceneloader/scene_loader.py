@@ -90,22 +90,22 @@ class SceneLoader:
         else:
             pcd_xyz, other_data = self.dataset_loader.load_frame(frame_id)
 
-            # 添加位姿信息
-            try:
-                R, T = self.get_pose(frame_id)
-                other_data['pose-R'] = R
-                other_data['pose-T'] = T
-            except:
-                pass
+        # 添加位姿信息
+        try:
+            R, T = self.get_pose(frame_id)
+            other_data['pose-R'] = R
+            other_data['pose-T'] = T
+        except:
+            pass
 
-            # 添加车辆状态信息
-            try:
-                if self.__vehicle_state is None:
-                    self.__vehicle_state = self.dataset_loader.load_vehicle_state(self.opt.scene_id)
-                for key in self.__vehicle_state.keys():
-                    other_data[key] = self.__vehicle_state[key][frame_id]
-            except:
-                pass
+        # 添加车辆状态信息
+        try:
+            if self.__vehicle_state is None:
+                self.__vehicle_state = self.dataset_loader.load_vehicle_state(self.opt.scene_id)
+            for key in self.__vehicle_state.keys():
+                other_data[key] = self.__vehicle_state[key][frame_id]
+        except:
+            pass
 
         if filter is not None:
             pcd_xyz, other_data = filter(pcd_xyz, other_data)

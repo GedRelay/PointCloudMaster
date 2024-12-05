@@ -17,7 +17,12 @@ class Visualizer():
     def __init__(self, opt):
         self.opt = opt
 
-        self.pause = False
+        self.pause = True
+        self.frame_id = 0
+        self.change_frame = False
+
+    def __reset(self):
+        self.pause = True
         self.frame_id = 0
         self.change_frame = False
 
@@ -193,7 +198,7 @@ class Visualizer():
         :param init_camera_T: 相机初始位置 [x, y, z]
         :return:
         '''
-
+        self.__reset()
         if end == -1:
             end = scene.frame_num - 1
 
@@ -360,7 +365,7 @@ class Visualizer():
     def compare_two_point_clouds(self, pcd_xyz1, pcd_xyz2, other_data1=None, other_data2=None,
                                     form1="point", point_size1=4.0, voxel_size1=0.5, octree_max_depth1=8,
                                     form2="point", point_size2=4.0, voxel_size2=0.5, octree_max_depth2=8,
-                                    axis=5, init_camera_rpy=None, init_camera_T=None):
+                                    axis=5, init_camera_rpy=None, init_camera_T=None, camera_sync=True):
         '''
         比较两个点云, 同步视角显示
         :param pcd_xyz1: 点云1
@@ -378,6 +383,7 @@ class Visualizer():
         :param axis: 坐标轴大小, None表示不绘制坐标轴
         :param init_camera_rpy: 相机初始姿态 [roll, pitch, yaw]
         :param init_camera_T: 相机初始位置 [x, y, z]
+        :param camera_sync: 是否同步相机视角
         :return:
         '''
 
@@ -508,13 +514,13 @@ class Visualizer():
         running2 = True
 
         while running1 and running2:
-            # 更新渲染, 保持两个窗口视角一致
-            cam1 = vis1.get_view_control().convert_to_pinhole_camera_parameters()
-            vis2.get_view_control().convert_from_pinhole_camera_parameters(cam1)
+            if camera_sync:
+                cam1 = vis1.get_view_control().convert_to_pinhole_camera_parameters()
+                vis2.get_view_control().convert_from_pinhole_camera_parameters(cam1)
             running1 = vis1.poll_events()
-
-            cam2 = vis2.get_view_control().convert_to_pinhole_camera_parameters()
-            vis1.get_view_control().convert_from_pinhole_camera_parameters(cam2)
+            if camera_sync:
+                cam2 = vis2.get_view_control().convert_to_pinhole_camera_parameters()
+                vis1.get_view_control().convert_from_pinhole_camera_parameters(cam2)
             running2 = vis2.poll_events()
 
             vis1.update_renderer()
@@ -527,7 +533,7 @@ class Visualizer():
     def compare_one_frame(self, scene, frame_id, axis=5, filter1=None, filter2=None,
                             form1="point", point_size1=4.0, voxel_size1=0.5, octree_max_depth1=8,
                             form2="point", point_size2=4.0, voxel_size2=0.5, octree_max_depth2=8,
-                            init_camera_rpy=None, init_camera_T=None):
+                            init_camera_rpy=None, init_camera_T=None, camera_sync=True):
         '''
         比较两个过滤器的结果，同步视角显示
         :param scene: 场景加载器
@@ -545,6 +551,7 @@ class Visualizer():
         :param octree_max_depth2: 点云2八叉树最大深度，当form2为octree时有效
         :param init_camera_rpy: 相机初始姿态 [roll, pitch, yaw]
         :param init_camera_T: 相机初始位置 [x, y, z]
+        :param camera_sync: 是否同步相机视角
         :return:
         '''
 
@@ -554,7 +561,7 @@ class Visualizer():
         self.compare_two_point_clouds(pcd_xyz1, pcd_xyz2, other_data1, other_data2,
                                         form1=form1, point_size1=point_size1, voxel_size1=voxel_size1, octree_max_depth1=octree_max_depth1,
                                         form2=form2, point_size2=point_size2, voxel_size2=voxel_size2, octree_max_depth2=octree_max_depth2,
-                                        axis=axis, init_camera_rpy=init_camera_rpy, init_camera_T=init_camera_T)
+                                        axis=axis, init_camera_rpy=init_camera_rpy, init_camera_T=init_camera_T, camera_sync=camera_sync)
 
 
     def compare_scene(self, scene, filter1=None, filter2=None, delay_time=0.1, begin=0, end=-1,
@@ -583,6 +590,7 @@ class Visualizer():
         :param camera_sync: 是否同步相机视角
         :return:
         '''
+        self.__reset()
         if end == -1:
             end = scene.frame_num - 1
 

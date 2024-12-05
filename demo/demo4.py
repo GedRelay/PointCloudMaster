@@ -30,9 +30,7 @@ def filter(pcd_xyz, other_data):
 
     pcd_xyz, other_data = Filters.remove_points_by_id(pcd_xyz, other_data, id_list=remove_id)  # 移除指定id的点云
 
-    pcd_v, other_data = Filters.xyz2v(pcd_xyz, other_data)  # 将三维空间点云转换为速度空间点云
-
-    return pcd_v, other_data  # 返回速度空间点云, 表示可视化速度空间
+    return pcd_xyz, other_data
 
 
 if __name__ == '__main__':
