@@ -106,12 +106,14 @@ PointCloudMaster
         {
           "scene_id": 0,
           "pcd_path": "0号场景点云存放目录，确保该目录下只有点云文件",
-          "pose_path": "0号场景位姿文件位置，如果没有则填写null"
+          "pose_path": "0号场景位姿文件位置，如果没有则填写null", 
+          "vehicle_state_path": "0号场景车辆状态文件位置，如果没有则填写null"
         },
         {
           "scene_id": 1,
           "pcd_path": "1号场景点云存放目录，确保该目录下只有点云文件",
-          "pose_path": null
+          "pose_path": null,
+          "vehicle_state_path": null
         },
         ...
       ]
