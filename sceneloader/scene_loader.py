@@ -41,6 +41,7 @@ class SceneLoader:
 
         self.__Rs = None
         self.__Ts = None
+        self.__vehicle_state = None
 
         if self.opt.preload_end == -1:
             self.opt.preload_end = self.frame_num - 1
@@ -89,6 +90,23 @@ class SceneLoader:
         else:
             pcd_xyz, other_data = self.dataset_loader.load_frame(frame_id)
 
+            # 添加位姿信息
+            try:
+                R, T = self.get_pose(frame_id)
+                other_data['pose-R'] = R
+                other_data['pose-T'] = T
+            except:
+                pass
+
+            # 添加车辆状态信息
+            try:
+                if self.__vehicle_state is None:
+                    self.__vehicle_state = self.dataset_loader.load_vehicle_state(self.opt.scene_id)
+                for key in self.__vehicle_state.keys():
+                    other_data[key] = self.__vehicle_state[key][frame_id]
+            except:
+                pass
+
         if filter is not None:
             pcd_xyz, other_data = filter(pcd_xyz, other_data)
 
@@ -115,10 +133,14 @@ class DatasetLoader_Base:
         scenes = json_data['scenes']
         self.pcd_data_path = None
         self.pose_path = None
+        self.vehicle_state_path = None
         for scene in scenes:
             if scene['scene_id'] == scene_id:
-                self.pcd_data_path = scene['pcd_path']
-                self.pose_path = scene['pose_path']
+                self.pcd_data_path = os.path.join(self.root_path, scene['pcd_path'])
+                if scene['pose_path'] is not None:
+                    self.pose_path = os.path.join(self.root_path, scene['pose_path'])
+                if scene['vehicle_state_path'] is not None:
+                    self.vehicle_state_path = os.path.join(self.root_path, scene['vehicle_state_path'])
                 break
         if self.pcd_data_path is None:
             raise ValueError(f'没有{scene_id}这个场景')
@@ -143,4 +165,12 @@ class DatasetLoader_Base:
         :return: Ts, 平移向量列表 [N, 3]
         '''
         raise Exception('该数据集没有位姿信息')
+
+    def load_vehicle_state(self, scene_id):
+        '''
+        获取所有帧的车辆状态
+        :param scene_id: 场景id
+        :return: vehicle_state, 字典，包含车辆状态信息
+        '''
+        raise Exception('该数据集没有车辆状态信息')
 

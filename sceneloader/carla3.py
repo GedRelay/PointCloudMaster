@@ -78,3 +78,31 @@ class carla3(DatasetLoader_Base):
             Ts.append(T)
 
         return Rs, Ts
+
+    def load_vehicle_state(self, scene_id):
+        '''
+        获取所有帧的车辆状态
+        :param scene_id: 场景id
+        :return: vehicle_state, 字典，包含车辆状态信息
+        '''
+        import csv
+
+        vehicle_state = {}
+        data = []
+
+        with open(self.vehicle_state_path, 'r') as f:
+            reader = csv.reader(f)
+            _ = next(reader)
+            for row in reader:
+                if row:
+                    # frame, timestamp, x, y, z, roll, pitch, yaw, speed, vx, vy, vz, ax, ay, az, throttle, brake, steer, reverse, gear
+                    data.append(row)
+
+        data = np.array(data)
+        real_v = data[:, 9:12].astype(np.float32)
+        acc = data[:, 12:15].astype(np.float32)
+
+        vehicle_state['vehicle-real_v'] = real_v
+        vehicle_state['vehicle-acc'] = acc
+
+        return vehicle_state
