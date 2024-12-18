@@ -146,7 +146,10 @@ class DatasetLoader_Base:
             raise ValueError(f'没有{scene_id}这个场景')
 
         self.filenames = os.listdir(self.pcd_data_path)
-        self.filenames.sort(key=lambda x: int(x.split('.')[0]))  # 按照文件名排序
+        try:
+            self.filenames.sort(key=lambda x: int(x.split('.')[0]))  # 按照文件名排序
+        except:
+            pass
 
     def load_frame(self, frame_id):
         '''

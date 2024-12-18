@@ -31,6 +31,30 @@ class Tools():
         return bbox
 
     @staticmethod
+    def get_bbox_by_corners(corners, color=(1, 0, 0)):
+        '''
+        从8个点获取包围盒
+        :param corners: 8个点 (8, 3)
+        :param color: 包围盒颜色
+        :return: 包围盒 o3d.geometry.OrientedBoundingBox
+        '''
+        import open3d as o3d
+
+        lines = [
+            [0, 1], [1, 2], [2, 3], [3, 0],  # bottom square
+            [4, 5], [5, 6], [6, 7], [7, 4],  # top square
+            [0, 4], [1, 5], [2, 6], [3, 7]  # vertical lines
+        ]
+
+        bbox = o3d.geometry.LineSet(
+            points=o3d.utility.Vector3dVector(corners),
+            lines=o3d.utility.Vector2iVector(lines),
+        )
+        bbox.colors = o3d.utility.Vector3dVector([color] * len(lines))
+        bbox.paint_uniform_color(color)
+        return bbox
+
+    @staticmethod
     def get_arrow(vector, start, color=(1, 0, 0)):
         '''
         获取箭头
@@ -93,16 +117,19 @@ class Tools():
             pitch = math.radians(pitch)
             yaw = math.radians(yaw)
 
+        cos_r, sin_r = math.cos(roll), math.sin(roll)
         R_x = np.array([[1, 0, 0],
-                        [0, math.cos(roll), -math.sin(roll)],
-                        [0, math.sin(roll), math.cos(roll)]])
+                        [0, cos_r, -sin_r],
+                        [0, sin_r, cos_r]])
 
-        R_y = np.array([[math.cos(pitch), 0, math.sin(pitch)],
+        cos_p, sin_p = math.cos(pitch), math.sin(pitch)
+        R_y = np.array([[cos_p, 0, sin_p],
                         [0, 1, 0],
-                        [-math.sin(pitch), 0, math.cos(pitch)]])
+                        [-sin_p, 0, cos_p]])
 
-        R_z = np.array([[math.cos(yaw), -math.sin(yaw), 0],
-                        [math.sin(yaw), math.cos(yaw), 0],
+        cos_y, sin_y = math.cos(yaw), math.sin(yaw)
+        R_z = np.array([[cos_y, -sin_y, 0],
+                        [sin_y, cos_y, 0],
                         [0, 0, 1]])
         R = np.dot(R_z, np.dot(R_y, R_x))
         return R
@@ -253,6 +280,19 @@ class Tools():
         pcd_abrho = np.vstack([a, b, rho]).T
 
         return pcd_abrho
+
+    @staticmethod
+    def inverse_rigid_trans(Tr):
+        '''
+        逆刚体变换矩阵
+        :param Tr: 刚体变换矩阵 (3x4 as [R|t])
+        :return: inv_Tr: 逆刚体变换矩阵 (3x4)
+        '''
+        import numpy as np
+        inv_Tr = np.zeros_like(Tr) # 3x4
+        inv_Tr[0:3, 0:3] = np.transpose(Tr[0:3, 0:3])
+        inv_Tr[0:3, 3] = np.dot(-np.transpose(Tr[0:3, 0:3]), Tr[0:3, 3])
+        return inv_Tr
 
 
 
