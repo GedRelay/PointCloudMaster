@@ -40,18 +40,21 @@ class Tools():
         '''
         import open3d as o3d
 
-        lines = [
-            [0, 1], [1, 2], [2, 3], [3, 0],  # bottom square
-            [4, 5], [5, 6], [6, 7], [7, 4],  # top square
-            [0, 4], [1, 5], [2, 6], [3, 7]  # vertical lines
-        ]
+        # lines = [
+        #     [0, 1], [1, 2], [2, 3], [3, 0],  # bottom square
+        #     [4, 5], [5, 6], [6, 7], [7, 4],  # top square
+        #     [0, 4], [1, 5], [2, 6], [3, 7]  # vertical lines
+        # ]
+        #
+        # bbox = o3d.geometry.LineSet(
+        #     points=o3d.utility.Vector3dVector(corners),
+        #     lines=o3d.utility.Vector2iVector(lines),
+        # )
+        # bbox.colors = o3d.utility.Vector3dVector([color] * len(lines))
+        # bbox.paint_uniform_color(color)
 
-        bbox = o3d.geometry.LineSet(
-            points=o3d.utility.Vector3dVector(corners),
-            lines=o3d.utility.Vector2iVector(lines),
-        )
-        bbox.colors = o3d.utility.Vector3dVector([color] * len(lines))
-        bbox.paint_uniform_color(color)
+        bbox = o3d.geometry.OrientedBoundingBox.create_from_points(o3d.utility.Vector3dVector(corners))
+        bbox.color = color
         return bbox
 
     @staticmethod

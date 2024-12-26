@@ -10,9 +10,9 @@ import os
 import numpy as np
 from utils import Tools
 
-class carla3(DatasetLoader_Base):
+class carla_4d(DatasetLoader_Base):
     def __init__(self, scene_id, json_data):
-        super(carla3, self).__init__(scene_id, json_data)
+        super(carla_4d, self).__init__(scene_id, json_data)
 
     def load_frame(self, frame_id):
         '''

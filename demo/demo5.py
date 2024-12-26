@@ -50,7 +50,7 @@ def filter2(pcd_xyz, other_data):
 if __name__ == '__main__':
     opt = options()
     opt.window_left = 0
-    opt.dataset = 'carla1'
+    opt.dataset = 'carla_4d'
     opt.scene_id = 0
 
     # 可视化器
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     # 对比两个点云
     pcd_xyz1, other_data1 = scene.get_frame(frame_id=0, filter=filter1)
     pcd_xyz2, other_data2 = scene.get_frame(frame_id=5, filter=filter1)
-    visualizer.compare_two_point_clouds(pcd_xyz1, pcd_xyz2, other_data1, other_data2)
+    visualizer.compare_two_point_clouds(pcd_xyz1, pcd_xyz2, other_data1, other_data2, camera_sync=True)
 
     # 使用两个过滤函数对比单帧中的点云
     visualizer.compare_one_frame(scene, frame_id=100, filter1=filter1, filter2=filter2)

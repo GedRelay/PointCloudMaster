@@ -38,11 +38,11 @@ def filter(pcd_xyz, other_data):
     other_data['pointinfo-color'] = np.ones_like(pcd_xyz)
     # 可视化3D包围盒
     other_data['geometry-bboxes'] = []
-    for i, box in enumerate(other_data['bbox_corners_3d']):
+    for i, bbox_corner in enumerate(other_data['bbox_corners_3d']):
         id = other_data['bbox_3d_ids'][i]
         if id not in bboxes_color:
             bboxes_color[id] = np.random.rand(3)
-        bbox = Tools.get_bbox_by_corners(box, color=bboxes_color[id])
+        bbox = Tools.get_bbox_by_corners(bbox_corner, color=bboxes_color[id])
         other_data['geometry-bboxes'].append(bbox)
 
     # 筛选出指定区域的点云
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     opt = options()
     opt.dataset = 'kitti_tracking'
     opt.background_color = [0, 0, 0]
-    opt.scene_id = 0
+    opt.scene_id = 1
     opt.preload = True  # 预加载
     opt.preload_begin = 0
     opt.preload_end = -1

@@ -15,7 +15,7 @@ if __name__ == '__main__':
     opt = options()
 
     # 设置参数
-    opt.dataset = 'carla3'
+    opt.dataset = 'carla_4d'
     opt.scene_id = 0
 
     # 加载场景
@@ -24,4 +24,4 @@ if __name__ == '__main__':
 
     # 查看全局地图
     visualizer = Visualizer(opt)
-    visualizer.draw_global_map(scene, step=20)
+    visualizer.draw_global_map(scene, step=40, point_size=4.0)

@@ -15,7 +15,7 @@ from utils import Visualizer  # 导入可视化工具
 if __name__ == '__main__':
     # 设置参数, 也可以在命令行中设置或者使用options.py的默认参数
     opt = options()
-    opt.dataset = 'carla1'
+    opt.dataset = 'carla_4d'
     opt.scene_id = 0
     opt.preload = True  # 预加载
     opt.preload_begin = 0

@@ -51,7 +51,7 @@ class Visualizer():
         listener.start()
 
 
-    def draw_points(self, points, other_data=None, form="point", point_size=4.0, voxel_size=0.5, octree_max_depth=8,
+    def draw_points(self, points, other_data=None, form="point", point_size=1.0, voxel_size=0.5, octree_max_depth=8,
                     axis=5, init_camera_rpy=None, init_camera_T=None):
         '''
         绘制点云
@@ -154,7 +154,7 @@ class Visualizer():
         vis.destroy_window()
 
 
-    def draw_one_frame(self, scene, frame_id, form="point", point_size=4.0, voxel_size=0.5, octree_max_depth=8,
+    def draw_one_frame(self, scene, frame_id, form="point", point_size=1.0, voxel_size=0.5, octree_max_depth=8,
                         axis=5, filter=None, init_camera_rpy=None, init_camera_T=None):
         '''
         绘制场景的某一帧
@@ -180,7 +180,7 @@ class Visualizer():
 
 
     def play_scene(self, scene, begin=0, end=-1, delay_time=0.1,
-                    form="point", point_size=4.0, voxel_size=0.5, octree_max_depth=8,
+                    form="point", point_size=1.0, voxel_size=0.5, octree_max_depth=8,
                     axis=5, filter=None, init_camera_rpy=None, init_camera_T=None):
         '''
         播放场景
@@ -337,15 +337,16 @@ class Visualizer():
 
         vis.destroy_window()
 
-    def draw_global_map(self, scene, step=1, axis=5):
+    def draw_global_map(self, scene, step=1, axis=5, point_size=1.0):
         '''
         绘制全局地图
         :param scene: 场景加载器
         :param step: 采样步长，每隔step帧采样一次
+        :param axis: 坐标轴大小, None表示不绘制坐标轴
+        :param point_size: 点云大小
         :return:
         '''
         points_world = []
-
         bar = tqdm(range(0, scene.frame_num, step))
         for i in bar:
             bar.set_description("加载中")
@@ -359,12 +360,12 @@ class Visualizer():
         points_world = np.concatenate(points_world, axis=0)
         print("全局地图点数：", points_world.shape[0])
 
-        self.draw_points(points_world, axis=axis)
+        self.draw_points(points_world, axis=axis, point_size=point_size)
 
 
     def compare_two_point_clouds(self, pcd_xyz1, pcd_xyz2, other_data1=None, other_data2=None,
-                                    form1="point", point_size1=4.0, voxel_size1=0.5, octree_max_depth1=8,
-                                    form2="point", point_size2=4.0, voxel_size2=0.5, octree_max_depth2=8,
+                                    form1="point", point_size1=1.0, voxel_size1=0.5, octree_max_depth1=8,
+                                    form2="point", point_size2=1.0, voxel_size2=0.5, octree_max_depth2=8,
                                     axis=5, init_camera_rpy=None, init_camera_T=None, camera_sync=True):
         '''
         比较两个点云, 同步视角显示
@@ -531,8 +532,8 @@ class Visualizer():
 
 
     def compare_one_frame(self, scene, frame_id, axis=5, filter1=None, filter2=None,
-                            form1="point", point_size1=4.0, voxel_size1=0.5, octree_max_depth1=8,
-                            form2="point", point_size2=4.0, voxel_size2=0.5, octree_max_depth2=8,
+                            form1="point", point_size1=1.0, voxel_size1=0.5, octree_max_depth1=8,
+                            form2="point", point_size2=1.0, voxel_size2=0.5, octree_max_depth2=8,
                             init_camera_rpy=None, init_camera_T=None, camera_sync=True):
         '''
         比较两个过滤器的结果，同步视角显示
@@ -565,8 +566,8 @@ class Visualizer():
 
 
     def compare_scene(self, scene, filter1=None, filter2=None, delay_time=0.1, begin=0, end=-1,
-                        form1="point", point_size1=4.0, voxel_size1=0.5, octree_max_depth1=8,
-                        form2="point", point_size2=4.0, voxel_size2=0.5, octree_max_depth2=8,
+                        form1="point", point_size1=1.0, voxel_size1=0.5, octree_max_depth1=8,
+                        form2="point", point_size2=1.0, voxel_size2=0.5, octree_max_depth2=8,
                         axis=5, init_camera_rpy=None, init_camera_T=None, camera_sync=True):
         '''
         播放场景并比较两个过滤函数的结果, 默认开启同步视角显示

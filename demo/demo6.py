@@ -33,7 +33,7 @@ def filter(pcd_xyz, other_data):
 if __name__ == '__main__':
     opt = options()
     opt.window_left = 0
-    opt.dataset = 'carla1'
+    opt.dataset = 'carla_4d'
     opt.scene_id = 0
 
     opt.preload = True # 预加载

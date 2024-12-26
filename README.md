@@ -57,8 +57,9 @@ PointCloudMaster
 其中包含许多工具函数
 
 | 函数                     | 作用                       |
-| ---------------------- | ------------------------ |
+|------------------------|--------------------------|
 | `get_bbox_from_points` | 从点云中获取包围盒                |
+| `get_bbox_by_corners`  | 根据八个角点获取包围盒              |
 | `get_arrow`            | 获取箭头                     |
 | `euler2mat`            | 欧拉角转旋转矩阵                 |
 | `get_id_times`         | 获取每个id的出现次数              |
@@ -68,6 +69,7 @@ PointCloudMaster
 | `mean_shift`           | 使用sklearn的mean_shift进行聚类 |
 | `kmeans`               | 使用sklearn的kmeans进行聚类     |
 | `xyz2abrho`            | 将三维空间点云转换为极坐标空间点云        |
+| `inverse_rigid_trans`  | 对刚体变换矩阵求逆                |
 
 
 # Filters类
@@ -160,87 +162,3 @@ class name(DatasetLoader_Base):
 - 以`pose-`开头的数据表示位姿信息，`pose-R`表示旋转矩阵，`pose-T`表示平移向量，由load_poses函数读取
 - 以`vehicle-`开头的数据表示自车信息，如`vehicle-real_v`表示车辆速度，`vehicle-acc`表示车辆加速度，由load_vehicle_state函数读取
 
-
-# 数据集说明
-
-## carla1
-
-有 2 个场景
-
-每一帧的每一个点云的数据格式为
-```
-x, y, z, rv, vx, vy, vz, id, label, intensity
-```
-- `x, y, z`: 点云空间位置
-- `rv`: 径向速度 (**未补偿**)
-- `vx, vy, vz`: 真实矢量速度
-- `id`: 实体 id，静态物体的 id 为 `98` 
-- `label`: 语义标注（**全是 `0`，可以认为该数据集没有语义标签**）
-- `intensity`: 强度（没有使用过，不清楚有没有问题）
-
-
->**注意！**
->1. 该数据集没有车辆的位姿信息
->2. 标注的真实速度 `vx, vy, vz` 是以全局地图为参考系下的速度，如果拥有车辆的位姿信息的话可以将全局地图参考系下的速度转换为主车参考系下的速度，正如第一条所说该数据集没有车辆的位姿信息
->3. 语义标注 `label` 列全都是 `0`，可以认为该数据集没有语义标签
-
-
-
-
-## carla2
-有 1 个场景
-
-每一帧的每一个点云的数据格式为
-```
-x, y, z, cosangle, rv, vx, vy, vz, vcps, id, label, intensity
-```
-- `x, y, z`: 点云空间位置
-- `cosangle`: 
-- `rv`: 径向速度 (**未补偿**)
-- `vx, vy, xz`: 真实矢量速度 (**全是 `0`,可以认为该数据集没有真实速度标签** )
-- `vcps`: 补偿后的径向速度
-- `id`: 实体 id
-- `label`: 语义标签
-- `intensity`: 强度（没有使用过，不清楚有没有问题）
-
-
->**注意！** 
->1. 真实速度标签 `vx,vy,vz` 列全部为 `0`，可以认为该数据集没有真实速度标签
-
-
-
-## aeva
-有 8 个场景
-
-每一帧的每一个点云的数据格式为
-```
-x, y, z, rv, time
-```
-- `x, y, z`: 点云空间位置
-- `rv`: 径向速度（**未补偿**）
-- `time`: 被扫描到的时间
-
-
-
-
-## helipr
-有 1 个场景
-
-每一帧的每一个点云的数据格式为
-```
-x, y, z, reflectivity, vcps, time, line_index, intensity
-```
-- `x, y, z`: 点云空间位置
-- `reflectivity`: 反射率
-- `vcps`: 补偿后的径向速度
-- `time`: 被扫描到的时间
-- `line_index`: 扫描线索引
-- `intensity`: 强度
-
-
-其他信息：\
-一共有 64 条扫描线（0 到 63 号从最下面到最上面）\
-但这几条线不是按顺序扫描的（通过对 time 进行排序发现）\
-但大致是从左到右，从下到上的扫描顺序
-
-两帧之间间隔不到 1 秒，约 10 帧每秒
