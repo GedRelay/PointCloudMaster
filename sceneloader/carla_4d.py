@@ -13,6 +13,8 @@ from utils import Tools
 class carla_4d(DatasetLoader_Base):
     def __init__(self, scene_id, json_data):
         super(carla_4d, self).__init__(scene_id, json_data)
+        self.vehicle_state_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['vehicle_state_path'])
+        self.vehicle_state = self.load_vehicle_state(scene_id)
 
     def load_frame(self, frame_id):
         '''
@@ -46,6 +48,8 @@ class carla_4d(DatasetLoader_Base):
         other_data['pointinfo-intensity'] = data['intensity']
         other_data['pointinfo-id'] = data['id']
         other_data['pointinfo-label'] = data['label']
+        other_data['vehicle-real_v'] = self.vehicle_state['vehicle-real_v'][frame_id]
+        other_data['vehicle-acc'] = self.vehicle_state['vehicle-acc'][frame_id]
 
         return pcd_xyz, other_data
 

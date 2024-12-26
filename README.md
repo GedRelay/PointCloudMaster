@@ -107,15 +107,15 @@ PointCloudMaster
       "scenes": [
         {
           "scene_id": 0,
-          "pcd_path": "0号场景点云存放目录，确保该目录下只有点云文件",
-          "pose_path": "0号场景位姿文件位置，如果没有则填写null", 
-          "vehicle_state_path": "0号场景车辆状态文件位置，如果没有则填写null"
+          "pcd_path": "0号场景点云存放目录，确保该目录下只有点云文件，路径相对于数据集根目录",
+          "pose_path": "0号场景位姿文件位置，路径相对于数据集根目录，如果没有则填写null",
+           后面可以根据数据集继续添加数据集特有的数据路径，如图片路径，标签路径，车辆状态路径等等
         },
         {
           "scene_id": 1,
-          "pcd_path": "1号场景点云存放目录，确保该目录下只有点云文件",
+          "pcd_path": "1号场景点云存放目录，确保该目录下只有点云文件，路径相对于数据集根目录",
           "pose_path": null,
-          "vehicle_state_path": null
+           后面可以根据数据集继续添加数据集特有的数据路径，如图片路径，标签路径，车辆状态路径等等
         },
         ...
       ]
@@ -129,7 +129,6 @@ PointCloudMaster
     1. 文件中按照以下模板进行实现，注意：类的命名要为`数据集名字`
     2.  `load_frame(self, frame_id)`：加载某一帧的数据。返回一个大小为 `N*3` 的 `numpy` 点云数据`pcd_xyz`，和一个字典`other_data`，该字典的key为字符串，值为对应数据。每个数据集包含的数据都有区别，这些数据都被存放在`other_data`中
     3.  `load_poses(self, scene_id)`：加载所有帧的位姿。返回旋转矩阵的列表`Rs`和平移向量的列表`Ts`，`Rs`中每个元素为大小为`3*3`的`numpy`数组，`Ts`中每个元素为长度为`3`的`numpy`数组。如果该数据集没有位姿信息，则不需要实现该函数
-    4. `load_vehicle_state(self, scene_id)`：加载所有帧的车辆状态信息。返回一个字典，该字典的key为字符串，值为对应数据
 
 ```python
 from sceneloader import DatasetLoader_Base
@@ -139,6 +138,7 @@ import numpy as np
 class name(DatasetLoader_Base):
     def __init__(self, scene_id, json_data):
         super(DatasetLoader_Name, self).__init__(scene_id, json_data)
+        # 在此可以读取数据集的其他信息，如数据集的名字，数据集的根目录等
 
     def load_frame(self, frame_id):
         pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
@@ -160,5 +160,4 @@ class name(DatasetLoader_Base):
 - 以`pointinfo-`开头的数据表示点云中每个点的属性值，比如颜色`pointinfo-color`，标签`pointinfo-label`等。这些数据的长度要与点云数量对应。其中`pointinfo-color`较为特殊，若有，则会在可视化中绘制出来
 - 以`geometry-`开头的数据表示几何元素，若有，则会在可视化中绘制出来。目前支持的有`geometry-bboxes`, `geometry-arrows`, `geometry-spheres`。这些数据为列表类型，列表中为单个的几何元素
 - 以`pose-`开头的数据表示位姿信息，`pose-R`表示旋转矩阵，`pose-T`表示平移向量，由load_poses函数读取
-- 以`vehicle-`开头的数据表示自车信息，如`vehicle-real_v`表示车辆速度，`vehicle-acc`表示车辆加速度，由load_vehicle_state函数读取
 
