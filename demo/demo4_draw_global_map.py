@@ -3,7 +3,7 @@
 @Time        :  2024/6/5 上午1:42
 @Author      :  GedRelay
 @Email       :  gedrelay@stu.jnu.edu.cn
-@Description :  demo3, 演示3, 查看全局地图
+@Description :  demo4_draw_global_map, 演示4, 查看全局地图
 """
 import sys
 sys.path.append('.')

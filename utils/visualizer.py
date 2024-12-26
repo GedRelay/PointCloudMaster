@@ -14,12 +14,29 @@ from pynput import keyboard
 
 
 class Visualizer():
-    def __init__(self, opt):
-        self.opt = opt
+    def __init__(self, opt=None, window_name="Visualizer", window_height=540, window_width=960,
+                 window_left=50, window_top=50, background_color=[1, 1, 1]):
+        # 注意如果opt不为None时后面的参数都不可用
+        self.window_name = window_name
+        self.window_height = window_height
+        self.window_width = window_width
+        self.window_left = window_left
+        self.window_top = window_top
+        self.background_color = background_color
+        self.__load_settings_by_opt(opt)
 
         self.pause = True
         self.frame_id = 0
         self.change_frame = False
+
+    def __load_settings_by_opt(self, opt):
+        if opt is not None:
+            self.window_name = opt.window_name
+            self.window_height = opt.window_height
+            self.window_width = opt.window_width
+            self.window_left = opt.window_left
+            self.window_top = opt.window_top
+            self.background_color = opt.background_color
 
     def __reset(self):
         self.pause = True
@@ -51,7 +68,7 @@ class Visualizer():
         listener.start()
 
 
-    def draw_points(self, points, other_data=None, form="point", point_size=1.0, voxel_size=0.5, octree_max_depth=8,
+    def draw_points(self, points, other_data=None, form="point", point_size=2.0, voxel_size=0.5, octree_max_depth=8,
                     axis=5, init_camera_rpy=None, init_camera_T=None):
         '''
         绘制点云
@@ -68,11 +85,11 @@ class Visualizer():
         '''
 
         vis = o3d.visualization.Visualizer()
-        vis.create_window(window_name=self.opt.window_name, height=self.opt.window_height, width=self.opt.window_width,
-                            left=self.opt.window_left, top=self.opt.window_top)
+        vis.create_window(window_name=self.window_name, height=self.window_height, width=self.window_width,
+                            left=self.window_left, top=self.window_top)
 
         # 背景颜色
-        vis.get_render_option().background_color = np.asarray(self.opt.background_color)
+        vis.get_render_option().background_color = np.asarray(self.background_color)
 
         # 点云大小
         vis.get_render_option().point_size = point_size
@@ -141,12 +158,12 @@ class Visualizer():
 
             focal = 0.5
 
-            cam_params.intrinsic.set_intrinsics(self.opt.window_width,
-                                                self.opt.window_height,
-                                                fx=self.opt.window_width * focal,
-                                                fy=self.opt.window_width * focal,
-                                                cx=self.opt.window_width / 2,
-                                                cy=self.opt.window_height / 2)
+            cam_params.intrinsic.set_intrinsics(self.window_width,
+                                                self.window_height,
+                                                fx=self.window_width * focal,
+                                                fy=self.window_width * focal,
+                                                cx=self.window_width / 2,
+                                                cy=self.window_height / 2)
 
             vis.get_view_control().convert_from_pinhole_camera_parameters(cam_params, allow_arbitrary=True)
 
@@ -154,7 +171,7 @@ class Visualizer():
         vis.destroy_window()
 
 
-    def draw_one_frame(self, scene, frame_id, form="point", point_size=1.0, voxel_size=0.5, octree_max_depth=8,
+    def draw_one_frame(self, scene, frame_id, form="point", point_size=2.0, voxel_size=0.5, octree_max_depth=8,
                         axis=5, filter=None, init_camera_rpy=None, init_camera_T=None):
         '''
         绘制场景的某一帧
@@ -180,7 +197,7 @@ class Visualizer():
 
 
     def play_scene(self, scene, begin=0, end=-1, delay_time=0.1,
-                    form="point", point_size=1.0, voxel_size=0.5, octree_max_depth=8,
+                    form="point", point_size=2.0, voxel_size=0.5, octree_max_depth=8,
                     axis=5, filter=None, init_camera_rpy=None, init_camera_T=None):
         '''
         播放场景
@@ -203,11 +220,11 @@ class Visualizer():
             end = scene.frame_num - 1
 
         vis = o3d.visualization.Visualizer()
-        vis.create_window(window_name=self.opt.window_name, height=self.opt.window_height, width=self.opt.window_width,
-                            left=self.opt.window_left, top=self.opt.window_top)
+        vis.create_window(window_name=self.window_name, height=self.window_height, width=self.window_width,
+                            left=self.window_left, top=self.window_top)
 
         # 背景颜色
-        vis.get_render_option().background_color = np.asarray(self.opt.background_color)
+        vis.get_render_option().background_color = np.asarray(self.background_color)
 
         # 点云大小
         vis.get_render_option().point_size = point_size
@@ -293,12 +310,12 @@ class Visualizer():
                     cam_params.extrinsic = Matrix
 
                     focal = 0.5  # 焦距
-                    cam_params.intrinsic.set_intrinsics(self.opt.window_width,
-                                                        self.opt.window_height,
-                                                        fx=self.opt.window_width * focal,
-                                                        fy=self.opt.window_width * focal,
-                                                        cx=self.opt.window_width / 2,
-                                                        cy=self.opt.window_height / 2)
+                    cam_params.intrinsic.set_intrinsics(self.window_width,
+                                                        self.window_height,
+                                                        fx=self.window_width * focal,
+                                                        fy=self.window_width * focal,
+                                                        cx=self.window_width / 2,
+                                                        cy=self.window_height / 2)
 
                     vis.get_view_control().convert_from_pinhole_camera_parameters(cam_params, allow_arbitrary=True)
 
@@ -337,7 +354,7 @@ class Visualizer():
 
         vis.destroy_window()
 
-    def draw_global_map(self, scene, step=1, axis=5, point_size=1.0):
+    def draw_global_map(self, scene, step=1, axis=5, point_size=2.0):
         '''
         绘制全局地图
         :param scene: 场景加载器
@@ -364,8 +381,8 @@ class Visualizer():
 
 
     def compare_two_point_clouds(self, pcd_xyz1, pcd_xyz2, other_data1=None, other_data2=None,
-                                    form1="point", point_size1=1.0, voxel_size1=0.5, octree_max_depth1=8,
-                                    form2="point", point_size2=1.0, voxel_size2=0.5, octree_max_depth2=8,
+                                    form1="point", point_size1=2.0, voxel_size1=0.5, octree_max_depth1=8,
+                                    form2="point", point_size2=2.0, voxel_size2=0.5, octree_max_depth2=8,
                                     axis=5, init_camera_rpy=None, init_camera_T=None, camera_sync=True):
         '''
         比较两个点云, 同步视角显示
@@ -390,16 +407,16 @@ class Visualizer():
 
         # 第一个窗口
         vis1 = o3d.visualization.Visualizer()
-        vis1.create_window(window_name=self.opt.window_name + '-1', height=self.opt.window_height, width=self.opt.window_width,
-                            left=self.opt.window_left, top=self.opt.window_top)
+        vis1.create_window(window_name=self.window_name + '-1', height=self.window_height, width=self.window_width,
+                            left=self.window_left, top=self.window_top)
         vis2 = o3d.visualization.Visualizer()
-        vis2.create_window(window_name=self.opt.window_name + '-2', height=self.opt.window_height,
-                            width=self.opt.window_width,
-                            left=self.opt.window_left + self.opt.window_width, top=self.opt.window_top)
+        vis2.create_window(window_name=self.window_name + '-2', height=self.window_height,
+                            width=self.window_width,
+                            left=self.window_left + self.window_width, top=self.window_top)
 
         # 背景颜色
-        vis1.get_render_option().background_color = np.asarray(self.opt.background_color)
-        vis2.get_render_option().background_color = np.asarray(self.opt.background_color)
+        vis1.get_render_option().background_color = np.asarray(self.background_color)
+        vis2.get_render_option().background_color = np.asarray(self.background_color)
 
         # 点云大小
         vis1.get_render_option().point_size = point_size1
@@ -501,12 +518,12 @@ class Visualizer():
 
             focal = 0.5
 
-            cam_params.intrinsic.set_intrinsics(self.opt.window_width,
-                                                self.opt.window_height,
-                                                fx=self.opt.window_width * focal,
-                                                fy=self.opt.window_width * focal,
-                                                cx=self.opt.window_width / 2,
-                                                cy=self.opt.window_height / 2)
+            cam_params.intrinsic.set_intrinsics(self.window_width,
+                                                self.window_height,
+                                                fx=self.window_width * focal,
+                                                fy=self.window_width * focal,
+                                                cx=self.window_width / 2,
+                                                cy=self.window_height / 2)
 
             vis1.get_view_control().convert_from_pinhole_camera_parameters(cam_params, allow_arbitrary=True)
 
@@ -532,8 +549,8 @@ class Visualizer():
 
 
     def compare_one_frame(self, scene, frame_id, axis=5, filter1=None, filter2=None,
-                            form1="point", point_size1=1.0, voxel_size1=0.5, octree_max_depth1=8,
-                            form2="point", point_size2=1.0, voxel_size2=0.5, octree_max_depth2=8,
+                            form1="point", point_size1=2.0, voxel_size1=0.5, octree_max_depth1=8,
+                            form2="point", point_size2=2.0, voxel_size2=0.5, octree_max_depth2=8,
                             init_camera_rpy=None, init_camera_T=None, camera_sync=True):
         '''
         比较两个过滤器的结果，同步视角显示
@@ -566,8 +583,8 @@ class Visualizer():
 
 
     def compare_scene(self, scene, filter1=None, filter2=None, delay_time=0.1, begin=0, end=-1,
-                        form1="point", point_size1=1.0, voxel_size1=0.5, octree_max_depth1=8,
-                        form2="point", point_size2=1.0, voxel_size2=0.5, octree_max_depth2=8,
+                        form1="point", point_size1=2.0, voxel_size1=0.5, octree_max_depth1=8,
+                        form2="point", point_size2=2.0, voxel_size2=0.5, octree_max_depth2=8,
                         axis=5, init_camera_rpy=None, init_camera_T=None, camera_sync=True):
         '''
         播放场景并比较两个过滤函数的结果, 默认开启同步视角显示
@@ -600,14 +617,14 @@ class Visualizer():
         # 第一个窗口
         vis1 = o3d.visualization.Visualizer()
         vis2 = o3d.visualization.Visualizer()
-        vis1.create_window(window_name=self.opt.window_name + '-1', height=self.opt.window_height, width=self.opt.window_width,
-                            left=self.opt.window_left, top=self.opt.window_top)
-        vis2.create_window(window_name=self.opt.window_name + '-2', height=self.opt.window_height, width=self.opt.window_width,
-                            left=self.opt.window_left + self.opt.window_width, top=self.opt.window_top)
+        vis1.create_window(window_name=self.window_name + '-1', height=self.window_height, width=self.window_width,
+                            left=self.window_left, top=self.window_top)
+        vis2.create_window(window_name=self.window_name + '-2', height=self.window_height, width=self.window_width,
+                            left=self.window_left + self.window_width, top=self.window_top)
 
         # 背景颜色
-        vis1.get_render_option().background_color = np.asarray(self.opt.background_color)
-        vis2.get_render_option().background_color = np.asarray(self.opt.background_color)
+        vis1.get_render_option().background_color = np.asarray(self.background_color)
+        vis2.get_render_option().background_color = np.asarray(self.background_color)
 
         # 点云大小
         vis1.get_render_option().point_size = point_size1
@@ -723,12 +740,12 @@ class Visualizer():
                     cam_params.extrinsic = Matrix
 
                     focal = 0.5  # 焦距
-                    cam_params.intrinsic.set_intrinsics(self.opt.window_width,
-                                                        self.opt.window_height,
-                                                        fx=self.opt.window_width * focal,
-                                                        fy=self.opt.window_width * focal,
-                                                        cx=self.opt.window_width / 2,
-                                                        cy=self.opt.window_height / 2)
+                    cam_params.intrinsic.set_intrinsics(self.window_width,
+                                                        self.window_height,
+                                                        fx=self.window_width * focal,
+                                                        fy=self.window_width * focal,
+                                                        cx=self.window_width / 2,
+                                                        cy=self.window_height / 2)
 
                     vis1.get_view_control().convert_from_pinhole_camera_parameters(cam_params, allow_arbitrary=True)
 

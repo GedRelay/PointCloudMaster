@@ -3,7 +3,7 @@
 @Time        :  2024/12/17 15:42
 @Author      :  GedRelay
 @Email       :  gedrelay@stu.jnu.edu.cn
-@Description :  demo7.py kitti_tracking数据集可视化
+@Description :  demo7_kitti_tracking kitti_tracking数据集可视化
 """
 import sys
 sys.path.append('.')

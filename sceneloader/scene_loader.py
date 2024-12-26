@@ -13,8 +13,14 @@ import importlib
 
 
 class SceneLoader:
-    def __init__(self, opt):
-        self.opt = opt
+    def __init__(self, opt=None, dataset='carla_4d', scene_id=0, preload=False, preload_begin=0, preload_end=-1):
+        # 注意如果opt不为None时后面的参数都不可用
+        self.dataset = dataset
+        self.scene_id = scene_id
+        self.preload = preload
+        self.preload_begin = preload_begin
+        self.preload_end = preload_end
+        self.__load_settings_by_opt(opt)
 
         json_path = os.path.join(os.path.dirname(__file__), 'datasets.json')
         with open(json_path, 'r') as f:
@@ -22,45 +28,53 @@ class SceneLoader:
 
         dataset_idx = -1
         for i, dataset in enumerate(json_data['datasets']):
-            if dataset['name'] == self.opt.dataset:
+            if dataset['name'] == self.dataset:
                 dataset_idx = i
                 break
         if dataset_idx == -1:
-            raise ValueError(f"没有{self.opt.dataset}这个数据集")
+            raise ValueError(f"没有{self.dataset}这个数据集")
 
-        dataset_loader_class_name = self.opt.dataset
-        module = importlib.import_module(f'sceneloader.{self.opt.dataset}')
+        dataset_loader_class_name = self.dataset
+        module = importlib.import_module(f'sceneloader.{self.dataset}')
         dataset_loader_class = getattr(module, dataset_loader_class_name)
 
         if dataset_loader_class is None:
             raise ValueError(f"没有{dataset_loader_class_name}这个类")
         else:
-            self.dataset_loader = dataset_loader_class(scene_id=self.opt.scene_id, json_data=json_data['datasets'][dataset_idx])
+            self.dataset_loader = dataset_loader_class(scene_id=self.scene_id, json_data=json_data['datasets'][dataset_idx])
 
         self.frame_num = len(self.dataset_loader.filenames)
 
         self.__Rs = None
         self.__Ts = None
 
-        if self.opt.preload_end == -1:
-            self.opt.preload_end = self.frame_num - 1
+        if self.preload_end == -1:
+            self.preload_end = self.frame_num - 1
         self.preload_pcd_xyz_dict = {}
         self.preload_other_data_dict = {}
-        if self.opt.preload:
+        if self.preload:
             self.__preload_data()
+
+    def __load_settings_by_opt(self, opt):
+        if opt is not None:
+            self.dataset = opt.dataset
+            self.scene_id = opt.scene_id
+            self.preload = opt.preload
+            self.preload_begin = opt.preload_begin
+            self.preload_end = opt.preload_end
 
     def __preload_data(self):
         """
         预加载数据
         :return:
         """
-        assert 0 <= self.opt.preload_begin < self.frame_num, f'预加载起始帧:{self.opt.preload_begin}越界, 最大帧id为{self.frame_num - 1}'
-        assert self.opt.preload_begin <= self.opt.preload_end < self.frame_num, f'预加载结束帧:{self.opt.preload_end}越界, 起始帧为{self.opt.preload_begin}, 最大帧id为{self.frame_num - 1}'
+        assert 0 <= self.preload_begin < self.frame_num, f'预加载起始帧:{self.preload_begin}越界, 最大帧id为{self.frame_num - 1}'
+        assert self.preload_begin <= self.preload_end < self.frame_num, f'预加载结束帧:{self.preload_end}越界, 起始帧为{self.preload_begin}, 最大帧id为{self.frame_num - 1}'
 
         # 多线程预加载
-        with tqdm.tqdm(total=self.opt.preload_end - self.opt.preload_begin + 1, desc=f'数据预加载中（{self.opt.preload_begin}~{self.opt.preload_end}帧）', ncols=100) as bar:
+        with tqdm.tqdm(total=self.preload_end - self.preload_begin + 1, desc=f'数据预加载中（{self.preload_begin}~{self.preload_end}帧）', ncols=100) as bar:
             threads = []
-            for frame_id in range(self.opt.preload_begin, self.opt.preload_end + 1):
+            for frame_id in range(self.preload_begin, self.preload_end + 1):
                 t = threading.Thread(target=self.__preload_data_thread, args=(frame_id, bar))
                 threads.append(t)
                 t.start()
@@ -83,7 +97,7 @@ class SceneLoader:
         """
         assert 0 <= frame_id < self.frame_num, f'帧id:{frame_id}越界, 最大帧id为{self.frame_num - 1}'
 
-        if self.opt.preload and frame_id in self.preload_pcd_xyz_dict:
+        if self.preload and frame_id in self.preload_pcd_xyz_dict:
             pcd_xyz = self.preload_pcd_xyz_dict[frame_id].copy()
             other_data = self.preload_other_data_dict[frame_id].copy()
         else:
@@ -112,7 +126,7 @@ class SceneLoader:
         assert 0 <= frame_id < self.frame_num, f'帧id:{frame_id}越界, 最大帧id为{self.frame_num - 1}'
 
         if self.__Rs is None or self.__Ts is None:
-            self.__Rs, self.__Ts = self.dataset_loader.load_poses(self.opt.scene_id)
+            self.__Rs, self.__Ts = self.dataset_loader.load_poses(self.scene_id)
 
         return self.__Rs[frame_id], self.__Ts[frame_id]
 

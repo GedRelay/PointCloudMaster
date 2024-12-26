@@ -3,7 +3,7 @@
 @Time        :  2024/6/5 上午12:03
 @Author      :  GedRelay
 @Email       :  gedrelay@stu.jnu.edu.cn
-@Description :  demo2 演示2, id为98的点云为灰色，其他点云为橙色，此外为每个id绘制候选框
+@Description :  demo2_filter2 演示2, id为98的点云为灰色，其他点云为橙色，此外为每个id绘制候选框
 """
 import sys
 sys.path.append('.')

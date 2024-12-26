@@ -3,7 +3,7 @@
 @Time        :  2024/6/4 23:39
 @Author      :  GedRelay
 @Email       :  gedrelay@stu.jnu.edu.cn
-@Description :  demo1 演示1, 通过场景加载器加载场景并进行可视化, 使用过滤函数可视化过滤后的点云
+@Description :  demo1_filter1 演示1, 通过场景加载器加载场景并进行可视化, 使用过滤函数可视化过滤后的点云
 """
 import sys
 sys.path.append('.')

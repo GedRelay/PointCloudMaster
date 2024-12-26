@@ -3,7 +3,7 @@
 @Time        :  2024/6/5 14:00
 @Author      :  GedRelay
 @Email       :  gedrelay@stu.jnu.edu.cn
-@Description :  demo4 演示4, Filters和Tools的综合使用，构建由多个过滤器组成的自定义过滤函数
+@Description :  demo3_Filters_and_Tools 演示3, Filters和Tools的综合使用，构建由多个过滤器组成的自定义过滤函数
 """
 import sys
 sys.path.append('.')

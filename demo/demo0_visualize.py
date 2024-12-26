@@ -3,7 +3,7 @@
 @Time        :  2024/6/5 12:44
 @Author      :  GedRelay
 @Email       :  gedrelay@stu.jnu.edu.cn
-@Description :  demo0, 演示0，可视化点云
+@Description :  demo0_visualize, 演示0，可视化点云
 """
 import sys
 sys.path.append('.')
@@ -13,7 +13,7 @@ from utils import Visualizer  # 导入可视化工具
 
 
 if __name__ == '__main__':
-    # 设置参数, 也可以在命令行中设置或者使用options.py的默认参数
+    # 设置参数, 也可以在命令行中设置（如python demo0.py --scene_id 1）或者使用options.py的默认参数
     opt = options()
     opt.dataset = 'carla_4d'
     opt.scene_id = 0

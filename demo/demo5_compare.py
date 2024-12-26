@@ -3,7 +3,7 @@
 @Time        :  2024/9/2 20:14
 @Author      :  GedRelay
 @Email       :  gedrelay@stu.jnu.edu.cn
-@Description :  demo5.py 对比两个窗口的点云
+@Description :  demo5_compare 对比两个窗口的点云
 """
 import sys
 sys.path.append('.')

@@ -3,7 +3,7 @@
 @Time        :  2024/9/6 20:02
 @Author      :  GedRelay
 @Email       :  gedrelay@stu.jnu.edu.cn
-@Description :  demo6 演示6, 体素化与八叉树形式可视化演示
+@Description :  demo6_voxel_and_octree 演示6, 体素化与八叉树形式可视化演示
 """
 import sys
 sys.path.append('.')
