@@ -19,7 +19,7 @@ class kitti_tracking(DatasetLoader_Base):
         self.label_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['label_path'])
 
         # 读取标定文件
-        self.calib = self.load_calib(self.calib_path)
+        self.calib = self.load_calib()
 
         # 读取图片文件名
         self.image_filenames = os.listdir(self.img_path)
@@ -77,7 +77,7 @@ class kitti_tracking(DatasetLoader_Base):
         :return:
         '''
         pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
-        # x, y, z, intensity
+        # x, y, z, intensity, rv
         data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 5)
         pcd_xyz = data[:, :3]
         other_data = {}
@@ -131,10 +131,9 @@ class kitti_tracking(DatasetLoader_Base):
                 Ts.append(t)
         return Rs, Ts
 
-    def load_calib(self, calib_path):
+    def load_calib(self):
         '''
         读取标定文件
-        :param calib_path:
         :return:
         '''
         calib_ = {}

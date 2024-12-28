@@ -258,6 +258,37 @@
           "pose_path": "oxts\\0020.txt"
         }
       ]
+    },
+
+    {
+      "name": "kitti",
+      "root_path": "Q:\\kitti\\training",
+      "scenes": [
+        {
+          "scene_id": 0,
+          "image_path": "image_2",
+          "pcd_path": "velodyne",
+          "calib_path": "calib",
+          "label_path": "label_2",
+          "pose_path": null
+        }
+      ]
+    },
+
+    {
+      "name": "kitti_doppler",
+      "root_path": "M:\\datasetsss\\kitti_doppler\\training",
+      "scenes": [
+        {
+          "scene_id": 0,
+          "image_path": "image_2",
+          "pcd_path": "velodyne",
+          "calib_path": "calib",
+          "label_path": "label_2",
+          "pose_path": null
+        }
+      ]
     }
+
   ]
 }
