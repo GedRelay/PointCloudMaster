@@ -17,6 +17,7 @@ class kitti_tracking(DatasetLoader_Base):
         self.img_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['image_path'])
         self.calib_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['calib_path'])
         self.label_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['label_path'])
+        self.pose_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['pose_path'])
 
         # 读取标定文件
         self.calib = self.load_calib()
@@ -26,6 +27,9 @@ class kitti_tracking(DatasetLoader_Base):
 
         # 读取标签文件
         self.labels_data = np.loadtxt(self.label_path, delimiter=' ', dtype=str)
+
+        # 读取位姿文件
+        self.Rs, self.Ts = self.load_poses(scene_id)
 
     def load_bbox2d(self, frame_id):
         '''
@@ -88,6 +92,8 @@ class kitti_tracking(DatasetLoader_Base):
         other_data['image'] = Image.open(os.path.join(self.img_path, self.image_filenames[frame_id]))
         other_data['bbox_2d'], other_data['bbox_2d_ids'] = self.load_bbox2d(frame_id)
         other_data['bbox_corners_3d'], other_data['bbox_3d_ids'] = self.load_bbox3d(frame_id)
+        other_data['pose-R'] = self.Rs[frame_id]
+        other_data['pose-T'] = self.Ts[frame_id]
 
         return pcd_xyz, other_data
 

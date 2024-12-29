@@ -72,7 +72,6 @@ class kitti(DatasetLoader_Base):
         '''
         pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
         # x, y, z, intensity
-        print(pcd_path)
         data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 4)
         pcd_xyz = data[:, :3]
         other_data = {}

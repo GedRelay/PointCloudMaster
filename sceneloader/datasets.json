@@ -54,8 +54,7 @@
       "scenes": [
         {
           "scene_id": 0,
-          "pcd_path": "KAIST05\\LiDAR\\Aeva",
-          "pose_path": null
+          "pcd_path": "KAIST05\\LiDAR\\Aeva"
         }
       ]
     },
@@ -79,8 +78,7 @@
       "scenes": [
         {
           "scene_id": 0,
-          "pcd_path": "sweeps\\LIDAR_TOP",
-          "pose_path": null
+          "pcd_path": "sweeps\\LIDAR_TOP"
         }
       ]
     },
@@ -269,8 +267,7 @@
           "image_path": "image_2",
           "pcd_path": "velodyne",
           "calib_path": "calib",
-          "label_path": "label_2",
-          "pose_path": null
+          "label_path": "label_2"
         }
       ]
     },
@@ -284,10 +281,23 @@
           "image_path": "image_2",
           "pcd_path": "velodyne",
           "calib_path": "calib",
-          "label_path": "label_2",
-          "pose_path": null
+          "label_path": "label_2"
         }
       ]
+    },
+
+    {
+        "name": "carla4d_kitti",
+        "root_path": "Z:\\dataset\\carla4d_kitti\\training",
+        "scenes": [
+            {
+            "scene_id": 0,
+            "image_path": "image_2",
+            "pcd_path": "velodyne",
+            "calib_path": "calib",
+            "label_path": "label_2"
+            }
+        ]
     }
 
   ]

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-@Time        :  2024/12/27 19:43
+@Time        :  2024/12/28 17:32
 @Author      :  GedRelay
 @Email       :  gedrelay@stu.jnu.edu.cn
-@Description :  kitti_doppler
+@Description :  carla4d_kitti
 """
 from sceneloader import DatasetLoader_Base
 import os
@@ -11,9 +11,9 @@ import numpy as np
 from utils import Tools
 from PIL import Image
 
-class kitti_doppler(DatasetLoader_Base):
+class carla4d_kitti(DatasetLoader_Base):
     def __init__(self, scene_id, json_data):
-        super(kitti_doppler, self).__init__(scene_id, json_data)
+        super(carla4d_kitti, self).__init__(scene_id, json_data)
         self.img_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['image_path'])
         self.calib_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['calib_path'])
         self.label_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['label_path'])
@@ -33,7 +33,11 @@ class kitti_doppler(DatasetLoader_Base):
         :param label_path:
         :return:
         '''
-        labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 15)
+        try:
+            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 16)
+            labels = labels[:, :-1]
+        except:
+            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 17)
         bboxes_2d = []
         for label in labels:
             if label[0] == 'DontCare':
@@ -48,7 +52,11 @@ class kitti_doppler(DatasetLoader_Base):
         :param label_path:
         :return:
         '''
-        labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 15)
+        try:
+            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 16)
+            labels = labels[:, :-1]
+        except:
+            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 17)
         bboxes_corners = []
         for label in labels:
             if label[0] == 'DontCare':
@@ -71,12 +79,17 @@ class kitti_doppler(DatasetLoader_Base):
         :return:
         '''
         pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
-        # x, y, z, intensity, rv
-        data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 5)
+        # x, y, z, cos_angle, rv, vx, vy, vz, vcps, intensity, id, label
+        data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 12)
         pcd_xyz = data[:, :3]
         other_data = {}
-        other_data['pointinfo-intensity'] = data[:, 3]
+        other_data['pointinfo-cos_angle'] = data[:, 3]
         other_data['pointinfo-rv'] = data[:, 4]
+        other_data['pointinfo-real_v'] = data[:, 5:8]
+        other_data['pointinfo-vcps'] = data[:, 8]
+        other_data['pointinfo-intensity'] = data[:, 9]
+        other_data['pointinfo-id'] = data[:, 10]
+        other_data['pointinfo-label'] = data[:, 11]
 
         other_data['calib'] = self.load_calib(os.path.join(self.calib_path, self.calib_filenames[frame_id]))
         other_data['image'] = Image.open(os.path.join(self.img_path, self.image_filenames[frame_id]))
@@ -108,7 +121,7 @@ class kitti_doppler(DatasetLoader_Base):
         calib["R0"] = calib_["R0_rect:"].reshape(3, 3)
         calib["R0_inv"] = np.linalg.inv(calib["R0"])
         calib["Tr_velo_cam"] = calib_["Tr_velo_to_cam:"].reshape(3, 4)
-        calib["Tr_imu_velo"] = calib_["Tr_imu_to_velo:"].reshape(3, 4)
+        calib["Tr_imu_velo"] = calib_["TR_imu_to_velo:"].reshape(3, 4)
         calib["Tr_cam_velo"] = Tools.inverse_rigid_trans(calib["Tr_velo_cam"])
         return calib
 

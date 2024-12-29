@@ -368,7 +368,11 @@ class Visualizer():
         for i in bar:
             bar.set_description("加载中")
             pcd_xyz, _ = scene.get_frame(frame_id=i)
-            R, T = scene.get_pose(frame_id=i)
+            _, other_data = scene.get_frame(frame_id=i)
+            try:
+                R, T = other_data['pose-R'], other_data['pose-T']
+            except:
+                raise KeyError("'pose-R','pose-T', 请检查该数据集是否在load_frame中保存了位姿信息")
 
             pcd_xyz_global = np.dot(pcd_xyz, R.T) + T
 

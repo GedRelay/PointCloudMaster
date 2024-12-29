@@ -12,6 +12,8 @@ import numpy as np
 class aeva(DatasetLoader_Base):
     def __init__(self, scene_id, json_data):
         super(aeva, self).__init__(scene_id, json_data)
+        self.pose_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['pose_path'])
+        self.Rs, self.Ts = self.load_poses(scene_id)
 
     def load_frame(self, frame_id):
         '''
@@ -25,6 +27,8 @@ class aeva(DatasetLoader_Base):
         other_data = {}
         other_data['pointinfo-rv'] = data[:, 3]
         other_data['pointinfo-time'] = data[:, 4]
+        other_data['pose-R'] = self.Rs[frame_id]
+        other_data['pose-T'] = self.Ts[frame_id]
 
         return pcd_xyz, other_data
 

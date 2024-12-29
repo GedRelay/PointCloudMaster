@@ -45,9 +45,6 @@ class SceneLoader:
 
         self.frame_num = len(self.dataset_loader.filenames)
 
-        self.__Rs = None
-        self.__Ts = None
-
         if self.preload_end == -1:
             self.preload_end = self.frame_num - 1
         self.preload_pcd_xyz_dict = {}
@@ -103,32 +100,10 @@ class SceneLoader:
         else:
             pcd_xyz, other_data = self.dataset_loader.load_frame(frame_id)
 
-        # 添加位姿信息
-        try:
-            R, T = self.get_pose(frame_id)
-            other_data['pose-R'] = R
-            other_data['pose-T'] = T
-        except:
-            pass
-
         if filter is not None:
             pcd_xyz, other_data = filter(pcd_xyz, other_data)
 
         return pcd_xyz, other_data
-
-    def get_pose(self, frame_id):
-        '''
-        获取某一帧的位姿
-        :param frame_id: 帧id
-        :return: R, 旋转矩阵 [3, 3]
-        :return: T, 平移向量 [3]
-        '''
-        assert 0 <= frame_id < self.frame_num, f'帧id:{frame_id}越界, 最大帧id为{self.frame_num - 1}'
-
-        if self.__Rs is None or self.__Ts is None:
-            self.__Rs, self.__Ts = self.dataset_loader.load_poses(self.scene_id)
-
-        return self.__Rs[frame_id], self.__Ts[frame_id]
 
 
 class DatasetLoader_Base:
@@ -136,12 +111,9 @@ class DatasetLoader_Base:
         self.root_path = json_data['root_path']
         scenes = json_data['scenes']
         self.pcd_data_path = None
-        self.pose_path = None
         for scene in scenes:
             if scene['scene_id'] == scene_id:
                 self.pcd_data_path = os.path.join(self.root_path, scene['pcd_path'])
-                if scene['pose_path'] is not None:
-                    self.pose_path = os.path.join(self.root_path, scene['pose_path'])
                 break
         if self.pcd_data_path is None:
             raise ValueError(f'没有{scene_id}这个场景')
@@ -160,13 +132,4 @@ class DatasetLoader_Base:
         :return: other_data, 当前帧的其他数据
         '''
         raise NotImplementedError('必须实现load_frame方法')
-
-    def load_poses(self, scene_id):
-        '''
-        获取所有帧的位姿
-        :param scene_id: 场景id
-        :return: Rs, 旋转矩阵列表 [N, 3, 3]
-        :return: Ts, 平移向量列表 [N, 3]
-        '''
-        raise Exception('该数据集没有位姿信息')
 
