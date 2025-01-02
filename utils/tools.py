@@ -5,6 +5,10 @@
 @Email       :  gedrelay@stu.jnu.edu.cn
 @Description :  tools 工具
 """
+import open3d as o3d
+import numpy as np
+import math
+from sklearn.cluster import KMeans
 
 class Tools():
     def __init__(self):
@@ -19,8 +23,6 @@ class Tools():
         :param oriented: 是否为旋转包围盒
         :return: 包围盒 o3d.geometry.OrientedBoundingBox
         '''
-        import open3d as o3d
-
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points)
         if oriented:
@@ -31,6 +33,29 @@ class Tools():
         return bbox
 
     @staticmethod
+    def get_lineset_bbox_by_corners(corners, color=(1, 0, 0)):
+        '''
+        从8个点获取包围盒
+        :param corners: 8个点 (8, 3)
+        :param color: 包围盒颜色
+        :return: 包围盒 o3d.geometry.LineSet
+        '''
+        lines = [
+            [0, 1], [1, 2], [2, 3], [3, 0],
+            [4, 5], [5, 6], [6, 7], [7, 4],
+            [0, 4], [1, 5], [2, 6], [3, 7]
+        ]
+
+        bbox = o3d.geometry.LineSet(
+            points=o3d.utility.Vector3dVector(corners),
+            lines=o3d.utility.Vector2iVector(lines),
+        )
+        bbox.colors = o3d.utility.Vector3dVector([color] * len(lines))
+        bbox.paint_uniform_color(color)
+
+        return bbox
+
+    @staticmethod
     def get_bbox_by_corners(corners, color=(1, 0, 0)):
         '''
         从8个点获取包围盒
@@ -38,21 +63,6 @@ class Tools():
         :param color: 包围盒颜色
         :return: 包围盒 o3d.geometry.OrientedBoundingBox
         '''
-        import open3d as o3d
-
-        # lines = [
-        #     [0, 1], [1, 2], [2, 3], [3, 0],  # bottom square
-        #     [4, 5], [5, 6], [6, 7], [7, 4],  # top square
-        #     [0, 4], [1, 5], [2, 6], [3, 7]  # vertical lines
-        # ]
-        #
-        # bbox = o3d.geometry.LineSet(
-        #     points=o3d.utility.Vector3dVector(corners),
-        #     lines=o3d.utility.Vector2iVector(lines),
-        # )
-        # bbox.colors = o3d.utility.Vector3dVector([color] * len(lines))
-        # bbox.paint_uniform_color(color)
-
         bbox = o3d.geometry.OrientedBoundingBox.create_from_points(o3d.utility.Vector3dVector(corners))
         bbox.color = color
         return bbox
@@ -66,9 +76,6 @@ class Tools():
         :param color: 颜色
         :return: 箭头 o3d.geometry.TriangleMesh
         '''
-        import open3d as o3d
-        import numpy as np
-
         arrow = o3d.geometry.TriangleMesh.create_arrow(cylinder_radius=0.04,
                                                        cone_radius=0.06,
                                                        cylinder_height=0.8,
@@ -111,9 +118,6 @@ class Tools():
         :param degrees: 是否为角度制
         :return:
         '''
-        import numpy as np
-        import math
-
         # 角度制转弧度制
         if degrees:
             roll = math.radians(roll)
@@ -144,8 +148,6 @@ class Tools():
         :param ids: numpy.array (N,)
         :return: id_times numpy.array (N, 2), 第一列为id, 第二列为出现次数, 按照出现次数降序排列
         '''
-        import numpy as np
-
         id_times = np.unique(ids, return_counts=True)
         id_times = np.vstack(id_times).T
         id_times = id_times[id_times[:, 1].argsort()[::-1]]
@@ -161,8 +163,6 @@ class Tools():
         :param radius: 半径
         :return: 球体 o3d.geometry.TriangleMesh
         '''
-        import open3d as o3d
-
         sphere = o3d.geometry.TriangleMesh.create_sphere(radius=radius)
         sphere.translate(center)
         return sphere
@@ -250,8 +250,6 @@ class Tools():
         if X.shape[0] == 0:
             return []
 
-        from sklearn.cluster import KMeans
-
         estimator = KMeans(n_clusters=n_clusters,
                            init='k-means++',
                            n_init=10,
@@ -274,8 +272,6 @@ class Tools():
         :param pcd_xyz: 点云 [N, 3]
         :return: pcd_abrho
         '''
-        import numpy as np
-
         a = np.arctan2(pcd_xyz[:, 1], pcd_xyz[:, 0])
         b = np.arctan2(pcd_xyz[:, 2], np.linalg.norm(pcd_xyz[:, :2], axis=1))
         rho = np.linalg.norm(pcd_xyz, axis=1)
@@ -291,7 +287,6 @@ class Tools():
         :param Tr: 刚体变换矩阵 (3x4 as [R|t])
         :return: inv_Tr: 逆刚体变换矩阵 (3x4)
         '''
-        import numpy as np
         inv_Tr = np.zeros_like(Tr) # 3x4
         inv_Tr[0:3, 0:3] = np.transpose(Tr[0:3, 0:3])
         inv_Tr[0:3, 3] = np.dot(-np.transpose(Tr[0:3, 0:3]), Tr[0:3, 3])
