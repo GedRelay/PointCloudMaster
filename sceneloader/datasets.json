@@ -287,18 +287,31 @@
     },
 
     {
-        "name": "carla4d_kitti",
-        "root_path": "Z:\\dataset\\carla4d_kitti\\training",
-        "scenes": [
-            {
-            "scene_id": 0,
-            "image_path": "image_2",
-            "pcd_path": "velodyne",
-            "calib_path": "calib",
-            "label_path": "label_2"
-            }
-        ]
-    }
+      "name": "carla4d_kitti",
+      "root_path": "Z:\\dataset\\carla4d_kitti\\training",
+      "scenes": [
+        {
+          "scene_id": 0,
+          "image_path": "image_2",
+          "pcd_path": "velodyne",
+          "calib_path": "calib",
+          "label_path": "label_2"
+        }
+      ]
+    },
 
+    {
+      "name": "kitti_velocity",
+      "root_path": "M:\\datasetsss\\kitti_velocity\\training",
+      "scenes": [
+        {
+          "scene_id": 0,
+          "image_path": "image_2",
+          "pcd_path": "velodyne",
+          "calib_path": "calib",
+          "label_path": "label_2"
+        }
+      ]
+    }
   ]
 }
