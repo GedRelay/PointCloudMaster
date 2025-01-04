@@ -90,7 +90,7 @@
         {
           "scene_id": 0,
           "image_path": "image_02\\0000",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0000",
+          "pcd_path": "velodyne_clip_with_velocity\\0000",
           "calib_path": "calib\\0000.txt",
           "label_path": "label_02\\0000.txt",
           "pose_path": "oxts\\0000.txt"
@@ -98,7 +98,7 @@
         {
           "scene_id": 1,
           "image_path": "image_02\\0001",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0001",
+          "pcd_path": "velodyne_clip_with_velocity\\0001",
           "calib_path": "calib\\0001.txt",
           "label_path": "label_02\\0001.txt",
           "pose_path": "oxts\\0001.txt"
@@ -106,7 +106,7 @@
         {
           "scene_id": 2,
           "image_path": "image_02\\0002",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0002",
+          "pcd_path": "velodyne_clip_with_velocity\\0002",
           "calib_path": "calib\\0002.txt",
           "label_path": "label_02\\0002.txt",
           "pose_path": "oxts\\0002.txt"
@@ -114,7 +114,7 @@
         {
           "scene_id": 3,
           "image_path": "image_02\\0003",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0003",
+          "pcd_path": "velodyne_clip_with_velocity\\0003",
           "calib_path": "calib\\0003.txt",
           "label_path": "label_02\\0003.txt",
           "pose_path": "oxts\\0003.txt"
@@ -122,7 +122,7 @@
         {
           "scene_id": 4,
           "image_path": "image_02\\0004",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0004",
+          "pcd_path": "velodyne_clip_with_velocity\\0004",
           "calib_path": "calib\\0004.txt",
           "label_path": "label_02\\0004.txt",
           "pose_path": "oxts\\0004.txt"
@@ -130,7 +130,7 @@
         {
           "scene_id": 5,
           "image_path": "image_02\\0005",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0005",
+          "pcd_path": "velodyne_clip_with_velocity\\0005",
           "calib_path": "calib\\0005.txt",
           "label_path": "label_02\\0005.txt",
           "pose_path": "oxts\\0005.txt"
@@ -138,7 +138,7 @@
         {
           "scene_id": 6,
           "image_path": "image_02\\0006",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0006",
+          "pcd_path": "velodyne_clip_with_velocity\\0006",
           "calib_path": "calib\\0006.txt",
           "label_path": "label_02\\0006.txt",
           "pose_path": "oxts\\0006.txt"
@@ -146,7 +146,7 @@
         {
           "scene_id": 7,
           "image_path": "image_02\\0007",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0007",
+          "pcd_path": "velodyne_clip_with_velocity\\0007",
           "calib_path": "calib\\0007.txt",
           "label_path": "label_02\\0007.txt",
           "pose_path": "oxts\\0007.txt"
@@ -154,7 +154,7 @@
         {
           "scene_id": 8,
           "image_path": "image_02\\0008",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0008",
+          "pcd_path": "velodyne_clip_with_velocity\\0008",
           "calib_path": "calib\\0008.txt",
           "label_path": "label_02\\0008.txt",
           "pose_path": "oxts\\0008.txt"
@@ -162,7 +162,7 @@
         {
           "scene_id": 9,
           "image_path": "image_02\\0009",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0009",
+          "pcd_path": "velodyne_clip_with_velocity\\0009",
           "calib_path": "calib\\0009.txt",
           "label_path": "label_02\\0009.txt",
           "pose_path": "oxts\\0009.txt"
@@ -170,7 +170,7 @@
         {
           "scene_id": 10,
           "image_path": "image_02\\0010",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0010",
+          "pcd_path": "velodyne_clip_with_velocity\\0010",
           "calib_path": "calib\\0010.txt",
           "label_path": "label_02\\0010.txt",
           "pose_path": "oxts\\0010.txt"
@@ -178,7 +178,7 @@
         {
           "scene_id": 11,
           "image_path": "image_02\\0011",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0011",
+          "pcd_path": "velodyne_clip_with_velocity\\0011",
           "calib_path": "calib\\0011.txt",
           "label_path": "label_02\\0011.txt",
           "pose_path": "oxts\\0011.txt"
@@ -186,7 +186,7 @@
         {
           "scene_id": 12,
           "image_path": "image_02\\0012",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0012",
+          "pcd_path": "velodyne_clip_with_velocity\\0012",
           "calib_path": "calib\\0012.txt",
           "label_path": "label_02\\0012.txt",
           "pose_path": "oxts\\0012.txt"
@@ -194,7 +194,7 @@
         {
           "scene_id": 13,
           "image_path": "image_02\\0013",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0013",
+          "pcd_path": "velodyne_clip_with_velocity\\0013",
           "calib_path": "calib\\0013.txt",
           "label_path": "label_02\\0013.txt",
           "pose_path": "oxts\\0013.txt"
@@ -202,7 +202,7 @@
         {
           "scene_id": 14,
           "image_path": "image_02\\0014",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0014",
+          "pcd_path": "velodyne_clip_with_velocity\\0014",
           "calib_path": "calib\\0014.txt",
           "label_path": "label_02\\0014.txt",
           "pose_path": "oxts\\0014.txt"
@@ -210,7 +210,7 @@
         {
           "scene_id": 15,
           "image_path": "image_02\\0015",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0015",
+          "pcd_path": "velodyne_clip_with_velocity\\0015",
           "calib_path": "calib\\0015.txt",
           "label_path": "label_02\\0015.txt",
           "pose_path": "oxts\\0015.txt"
@@ -218,7 +218,7 @@
         {
           "scene_id": 16,
           "image_path": "image_02\\0016",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0016",
+          "pcd_path": "velodyne_clip_with_velocity\\0016",
           "calib_path": "calib\\0016.txt",
           "label_path": "label_02\\0016.txt",
           "pose_path": "oxts\\0016.txt"
@@ -226,7 +226,7 @@
         {
           "scene_id": 17,
           "image_path": "image_02\\0017",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0017",
+          "pcd_path": "velodyne_clip_with_velocity\\0017",
           "calib_path": "calib\\0017.txt",
           "label_path": "label_02\\0017.txt",
           "pose_path": "oxts\\0017.txt"
@@ -234,7 +234,7 @@
         {
           "scene_id": 18,
           "image_path": "image_02\\0018",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0018",
+          "pcd_path": "velodyne_clip_with_velocity\\0018",
           "calib_path": "calib\\0018.txt",
           "label_path": "label_02\\0018.txt",
           "pose_path": "oxts\\0018.txt"
@@ -242,7 +242,7 @@
         {
           "scene_id": 19,
           "image_path": "image_02\\0019",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0019",
+          "pcd_path": "velodyne_clip_with_velocity\\0019",
           "calib_path": "calib\\0019.txt",
           "label_path": "label_02\\0019.txt",
           "pose_path": "oxts\\0019.txt"
@@ -250,7 +250,7 @@
         {
           "scene_id": 20,
           "image_path": "image_02\\0020",
-          "pcd_path": "velodyne_clip_with_doppler_velocity\\0020",
+          "pcd_path": "velodyne_clip_with_velocity\\0020",
           "calib_path": "calib\\0020.txt",
           "label_path": "label_02\\0020.txt",
           "pose_path": "oxts\\0020.txt"

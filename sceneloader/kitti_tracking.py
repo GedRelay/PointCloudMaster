@@ -81,12 +81,13 @@ class kitti_tracking(DatasetLoader_Base):
         :return:
         '''
         pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
-        # x, y, z, intensity, rv
-        data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 5)
+        # x, y, z, intensity, rv, vx, vy, vz
+        data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 8)
         pcd_xyz = data[:, :3]
         other_data = {}
         other_data['pointinfo-intensity'] = data[:, 3]
         other_data['pointinfo-rv'] = data[:, 4]
+        other_data['pointinfo-real_v'] = data[:, 5:8]
 
         other_data['calib'] = self.calib
         other_data['image'] = Image.open(os.path.join(self.img_path, self.image_filenames[frame_id]))
