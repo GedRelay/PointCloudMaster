@@ -288,7 +288,7 @@
 
     {
       "name": "carla4d_kitti",
-      "root_path": "Z:\\dataset\\carla4d_kitti\\training",
+      "root_path": "Z:\\dataset\\carla4d_kitti_zrt\\training",
       "scenes": [
         {
           "scene_id": 0,

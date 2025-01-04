@@ -33,11 +33,7 @@ class carla4d_kitti(DatasetLoader_Base):
         :param label_path:
         :return:
         '''
-        try:
-            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 16)
-            labels = labels[:, :-1]
-        except:
-            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 17)
+        labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 15)
         bboxes_2d = []
         for label in labels:
             if label[0] == 'DontCare':
@@ -52,11 +48,7 @@ class carla4d_kitti(DatasetLoader_Base):
         :param label_path:
         :return:
         '''
-        try:
-            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 16)
-            labels = labels[:, :-1]
-        except:
-            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 17)
+        labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 15)
         bboxes_corners = []
         for label in labels:
             if label[0] == 'DontCare':
@@ -121,7 +113,7 @@ class carla4d_kitti(DatasetLoader_Base):
         calib["R0"] = calib_["R0_rect:"].reshape(3, 3)
         calib["R0_inv"] = np.linalg.inv(calib["R0"])
         calib["Tr_velo_cam"] = calib_["Tr_velo_to_cam:"].reshape(3, 4)
-        calib["Tr_imu_velo"] = calib_["TR_imu_to_velo:"].reshape(3, 4)
+        calib["Tr_imu_velo"] = calib_["Tr_imu_to_velo:"].reshape(3, 4)
         calib["Tr_cam_velo"] = Tools.inverse_rigid_trans(calib["Tr_velo_cam"])
         return calib
 
