@@ -367,8 +367,7 @@ class Visualizer():
         bar = tqdm(range(0, scene.frame_num, step))
         for i in bar:
             bar.set_description("加载中")
-            pcd_xyz, _ = scene.get_frame(frame_id=i)
-            _, other_data = scene.get_frame(frame_id=i)
+            pcd_xyz, other_data = scene.get_frame(frame_id=i)
             try:
                 R, T = other_data['pose-R'], other_data['pose-T']
             except:

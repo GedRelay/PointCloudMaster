@@ -79,7 +79,7 @@ PointCloudMaster
 
 
 | 函数                        | 作用               |
-| :------------------------ | :--------------- |
+|:--------------------------|:-----------------|
 | `xyz2v`                   | 将三维空间点云转换为速度空间点云 |
 | `add_noise_v`             | 为速度添加高斯噪声        |
 | `add_noise_xyz`           | 在3d点云射线长度上添加高斯噪声 |
@@ -88,6 +88,7 @@ PointCloudMaster
 | `remove_points_by_id`     | 通过id去除点          |
 | `remain_points_by_id`     | 通过id保留点          |
 | `remain_points_by_z_axis` | 保留z轴在一定范围之间的点    |
+| `remain_points_by_range` | 保留范围内的点          |
 
 
 

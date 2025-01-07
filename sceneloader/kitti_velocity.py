@@ -11,9 +11,9 @@ import numpy as np
 from utils import Tools
 from PIL import Image
 
-class kitti_doppler(DatasetLoader_Base):
+class kitti_velocity(DatasetLoader_Base):
     def __init__(self, scene_id, json_data):
-        super(kitti_doppler, self).__init__(scene_id, json_data)
+        super(kitti_velocity, self).__init__(scene_id, json_data)
         self.img_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['image_path'])
         self.calib_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['calib_path'])
         self.label_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['label_path'])
@@ -71,7 +71,7 @@ class kitti_doppler(DatasetLoader_Base):
         :return:
         '''
         pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
-        # x, y, z, intensity, rv
+        # x, y, z, intensity, rv, vx, vy, vz
         data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 8)
         pcd_xyz = data[:, :3]
         other_data = {}

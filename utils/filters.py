@@ -139,3 +139,21 @@ class Filters():
         pcd_xyz, other_data = Filters.remain_points_by_mask(pcd_xyz, other_data, mask)
 
         return pcd_xyz, other_data
+
+    @staticmethod
+    def remain_points_by_range(pcd_xyz, other_data, range):
+        '''
+        保留范围内的点
+        :param pcd_xyz: 点云
+        :param other_data: 其他数据
+        :param range: [x_min, y_min, z_min, x_max, y_max, z_max]
+        :return: pcd_xyz, other_data
+        '''
+        assert len(range) == 6
+        mask = (pcd_xyz[:, 0] >= range[0]) & (pcd_xyz[:, 0] <= range[3]) \
+               & (pcd_xyz[:, 1] >= range[1]) & (pcd_xyz[:, 1] <= range[4]) \
+               & (pcd_xyz[:, 2] >= range[2]) & (pcd_xyz[:, 2] <= range[5])
+
+        pcd_xyz, other_data = Filters.remain_points_by_mask(pcd_xyz, other_data, mask)
+
+        return pcd_xyz, other_data
