@@ -51,6 +51,7 @@ def filter(pcd_xyz, other_data):
     other_data['pointinfo-color'][mask] = [1, 0, 0]
 
     # 可视化图片以及2D包围盒
+    plt.clf()
     plt.imshow(other_data['image'])
     for i, box in enumerate(other_data['bbox_2d']):
         id = other_data['bbox_2d_ids'][i]
@@ -61,6 +62,7 @@ def filter(pcd_xyz, other_data):
     points_2d = points_to_image(select_points, other_data['calib']['Tr_velo_cam'], other_data['calib']['R0'],
                                 other_data['calib']['P2'])
     plt.scatter(points_2d[:, 0], points_2d[:, 1], c='r', s=1)
+    plt.ion()
     plt.show()
 
     return pcd_xyz, other_data
@@ -74,7 +76,7 @@ if __name__ == '__main__':
     opt.scene_id = 1
     opt.preload = True  # 预加载
     opt.preload_begin = 0
-    opt.preload_end = -1
+    opt.preload_end = 20
 
     # 加载场景
     scene = SceneLoader(opt)

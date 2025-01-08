@@ -23,7 +23,8 @@ class helipr(DatasetLoader_Base):
         dtype = np.dtype([('x', np.float32), ('y', np.float32), ('z', np.float32), ('reflectivity', np.float32),
                           ('velocity', np.float32), ('time_offset_ns', np.int32), ('line_index', np.uint8),
                           ('intensity', np.float32)])
-        data = np.array(np.fromfile(os.path.join(self.pcd_data_path, self.filenames[frame_id]), dtype=dtype).tolist())
+        with self.remote.get(os.path.join(self.pcd_data_path, self.filenames[frame_id])) as f:
+            data = np.array(np.fromfile(f, dtype=dtype).tolist())
         pcd_xyz = data[:, :3]
         other_data = {}
         other_data['pointinfo-vcps'] = data[:, 4]

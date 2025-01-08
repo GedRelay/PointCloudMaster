@@ -10,6 +10,7 @@ import os
 import numpy as np
 from utils import Tools
 from PIL import Image
+import io
 
 class kitti_tracking(DatasetLoader_Base):
     def __init__(self, scene_id, json_data):
@@ -23,10 +24,11 @@ class kitti_tracking(DatasetLoader_Base):
         self.calib = self.load_calib()
 
         # 读取图片文件名
-        self.image_filenames = os.listdir(self.img_path)
+        self.image_filenames = self.remote.listdir(self.img_path)
 
         # 读取标签文件
-        self.labels_data = np.loadtxt(self.label_path, delimiter=' ', dtype=str)
+        with self.remote.get(self.label_path) as label_path:
+            self.labels_data = np.loadtxt(label_path, delimiter=' ', dtype=str)
 
         # 读取位姿文件
         self.Rs, self.Ts = self.load_poses(scene_id)
@@ -82,7 +84,8 @@ class kitti_tracking(DatasetLoader_Base):
         '''
         pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
         # x, y, z, intensity, rv, vx, vy, vz
-        data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 8)
+        with self.remote.get(pcd_path) as pcd_path:
+            data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 8)
         pcd_xyz = data[:, :3]
         other_data = {}
         other_data['pointinfo-intensity'] = data[:, 3]
@@ -90,7 +93,8 @@ class kitti_tracking(DatasetLoader_Base):
         other_data['pointinfo-real_v'] = data[:, 5:8]
 
         other_data['calib'] = self.calib
-        other_data['image'] = Image.open(os.path.join(self.img_path, self.image_filenames[frame_id]))
+        with self.remote.get(os.path.join(self.img_path, self.image_filenames[frame_id])) as img_path:
+            other_data['image'] = load_image_to_memory(img_path)
         other_data['bbox_2d'], other_data['bbox_2d_ids'] = self.load_bbox2d(frame_id)
         other_data['bbox_corners_3d'], other_data['bbox_3d_ids'] = self.load_bbox3d(frame_id)
         other_data['pose-R'] = self.Rs[frame_id]
@@ -112,30 +116,31 @@ class kitti_tracking(DatasetLoader_Base):
         Ts = []
         scale = None
         origin = None
-        with open(self.pose_path, 'r') as f:
-            for line in f.readlines():
-                line = line.split()
-                line[:-5] = [float(x) for x in line[:-5]]
-                line[-5:] = [int(float(x)) for x in line[-5:]]
+        with self.remote.get(self.pose_path) as pose_path:
+            with open(pose_path, 'r') as f:
+                for line in f.readlines():
+                    line = line.split()
+                    line[:-5] = [float(x) for x in line[:-5]]
+                    line[-5:] = [int(float(x)) for x in line[-5:]]
 
-                lat, lon, alt, roll, pitch, yaw = line[:6]
+                    lat, lon, alt, roll, pitch, yaw = line[:6]
 
-                if scale is None:
-                    scale = np.cos(lat * np.pi / 180.)
+                    if scale is None:
+                        scale = np.cos(lat * np.pi / 180.)
 
-                R, t = pose_from_oxts_packet(lat, lon, alt, roll, pitch, yaw, scale)
+                    R, t = pose_from_oxts_packet(lat, lon, alt, roll, pitch, yaw, scale)
 
-                if origin is None:
-                    origin = t
+                    if origin is None:
+                        origin = t
 
-                R = R.reshape(3, 3)
-                t = t - origin
+                    R = R.reshape(3, 3)
+                    t = t - origin
 
-                R = R @ self.calib['Tr_imu_velo'][:3, :3]
-                t = t + self.calib['Tr_imu_velo'][:3, 3]
+                    R = R @ self.calib['Tr_imu_velo'][:3, :3]
+                    t = t + self.calib['Tr_imu_velo'][:3, 3]
 
-                Rs.append(R)
-                Ts.append(t)
+                    Rs.append(R)
+                    Ts.append(t)
         return Rs, Ts
 
     def load_calib(self):
@@ -145,12 +150,13 @@ class kitti_tracking(DatasetLoader_Base):
         '''
         calib_ = {}
         calib = {}
-        with open(self.calib_path, "r") as f:
-            for line in f:
-                # 以第一个空格分割
-                key, value = line.strip().split(" ", 1)
-                value = np.array([float(x) for x in value.split()])
-                calib_[key] = value
+        with self.remote.get(self.calib_path) as calib_path:
+            with open(calib_path, "r") as f:
+                for line in f:
+                    # 以第一个空格分割
+                    key, value = line.strip().split(" ", 1)
+                    value = np.array([float(x) for x in value.split()])
+                    calib_[key] = value
         calib["P0"] = calib_["P0:"].reshape(3, 4)  # 投影矩阵
         calib["P1"] = calib_["P1:"].reshape(3, 4)
         calib["P2"] = calib_["P2:"].reshape(3, 4)
@@ -215,3 +221,9 @@ def rotz(t):
     return np.array([[c, -s, 0],
                      [s, c, 0],
                      [0, 0, 1]])
+
+def load_image_to_memory(img_path):
+    with open(img_path, 'rb') as file:
+        img_data = file.read()
+    image = Image.open(io.BytesIO(img_data))
+    return image

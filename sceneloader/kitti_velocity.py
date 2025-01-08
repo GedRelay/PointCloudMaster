@@ -10,6 +10,7 @@ import os
 import numpy as np
 from utils import Tools
 from PIL import Image
+import io
 
 class kitti_velocity(DatasetLoader_Base):
     def __init__(self, scene_id, json_data):
@@ -19,13 +20,13 @@ class kitti_velocity(DatasetLoader_Base):
         self.label_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['label_path'])
 
         # 读取标定文件名
-        self.calib_filenames = os.listdir(self.calib_path)
+        self.calib_filenames = self.remote.listdir(self.calib_path)
 
         # 读取图片文件名
-        self.image_filenames = os.listdir(self.img_path)
+        self.image_filenames = self.remote.listdir(self.img_path)
 
         # 读取标签文件
-        self.labels_filenames = os.listdir(self.label_path)
+        self.labels_filenames = self.remote.listdir(self.label_path)
 
     def load_bbox2d(self, label_path):
         '''
@@ -72,18 +73,21 @@ class kitti_velocity(DatasetLoader_Base):
         '''
         pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
         # x, y, z, intensity, rv, vx, vy, vz
-        data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 8)
+        with self.remote.get(pcd_path) as pcd_path:
+            data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 8)
         pcd_xyz = data[:, :3]
         other_data = {}
         other_data['pointinfo-intensity'] = data[:, 3]
         other_data['pointinfo-rv'] = data[:, 4]
         other_data['pointinfo-real_v'] = data[:, 5:8]
 
-        other_data['calib'] = self.load_calib(os.path.join(self.calib_path, self.calib_filenames[frame_id]))
-        other_data['image'] = Image.open(os.path.join(self.img_path, self.image_filenames[frame_id]))
-        label_path = os.path.join(self.label_path, self.labels_filenames[frame_id])
-        other_data['bbox_2d'] = self.load_bbox2d(label_path)
-        other_data['bbox_corners_3d'] = self.load_bbox3d(label_path, other_data['calib']['R0_inv'], other_data['calib']['Tr_cam_velo'])
+        with self.remote.get(os.path.join(self.calib_path, self.calib_filenames[frame_id])) as calib_path:
+            other_data['calib'] = self.load_calib(calib_path)
+        with self.remote.get(os.path.join(self.img_path, self.image_filenames[frame_id])) as img_path:
+            other_data['image'] = load_image_to_memory(img_path)
+        with self.remote.get(os.path.join(self.label_path, self.labels_filenames[frame_id])) as label_path:
+            other_data['bbox_2d'] = self.load_bbox2d(label_path)
+            other_data['bbox_corners_3d'] = self.load_bbox3d(label_path, other_data['calib']['R0_inv'], other_data['calib']['Tr_cam_velo'])
 
         return pcd_xyz, other_data
 
@@ -126,3 +130,8 @@ def compute_3d_box_cam2(h, w, l, x, y, z, yaw):
     return corners_3d_cam2
 
 
+def load_image_to_memory(img_path):
+    with open(img_path, 'rb') as file:
+        img_data = file.read()
+    image = Image.open(io.BytesIO(img_data))
+    return image

@@ -1,0 +1,10 @@
+{
+  "hosts":[
+    {
+      "hostname": "A100_01",
+      "ip": "172.27.8.20",
+      "username": "maziyuan",
+      "private_key": "C:/Users/Admin/.ssh/id_rsa"
+    }
+  ]
+}

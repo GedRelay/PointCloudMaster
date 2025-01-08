@@ -13,10 +13,13 @@ from utils import Tools
 class carla_4d(DatasetLoader_Base):
     def __init__(self, scene_id, json_data):
         super(carla_4d, self).__init__(scene_id, json_data)
-        self.vehicle_state_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['vehicle_state_path'])
-        self.vehicle_state = self.load_vehicle_state(scene_id)
-        self.pose_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['pose_path'])
-        self.Rs, self.Ts = self.load_poses(scene_id)
+        vehicle_state_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['vehicle_state_path'])
+        with self.remote.get(vehicle_state_path) as vehicle_state_path:
+            self.vehicle_state = self.load_vehicle_state(vehicle_state_path)
+        pose_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['pose_path'])
+        with self.remote.get(pose_path) as pose_path:
+            self.Rs, self.Ts = self.load_poses(pose_path)
+
 
     def load_frame(self, frame_id):
         '''
@@ -40,7 +43,8 @@ class carla_4d(DatasetLoader_Base):
             ('id', np.uint32),
             ('label', np.uint32)
         ])
-        data = np.fromfile(pcd_path, dtype=dtype)
+        with self.remote.get(pcd_path) as pcd_path:
+            data = np.fromfile(pcd_path, dtype=dtype)
         pcd_xyz = np.stack([data['x'], data['y'], data['z']], axis=1)
         other_data = {}
         other_data['pointinfo-cos_angle'] = data['cos_angle']
@@ -57,17 +61,17 @@ class carla_4d(DatasetLoader_Base):
 
         return pcd_xyz, other_data
 
-    def load_poses(self, scene_id):
+    def load_poses(self, pose_path):
         '''
         获取所有帧的位姿
-        :param scene_id: 场景id
+        :param pose_path: 位姿文件路径
         :return: Rs, 旋转矩阵列表 [N, 3, 3]
         :return: Ts, 平移向量列表 [N, 3]
         '''
         import csv
 
         poses = []
-        with open(self.pose_path, 'r') as f:
+        with open(pose_path, 'r') as f:
             reader = csv.reader(f)
             _ = next(reader)
             for row in reader:
@@ -87,10 +91,10 @@ class carla_4d(DatasetLoader_Base):
 
         return Rs, Ts
 
-    def load_vehicle_state(self, scene_id):
+    def load_vehicle_state(self, vehicle_state_path):
         '''
         获取所有帧的车辆状态
-        :param scene_id: 场景id
+        :param vehicle_state_path: 车辆状态文件路径
         :return: vehicle_state, 字典，包含车辆状态信息
         '''
         import csv
@@ -98,7 +102,7 @@ class carla_4d(DatasetLoader_Base):
         vehicle_state = {}
         data = []
 
-        with open(self.vehicle_state_path, 'r') as f:
+        with open(vehicle_state_path, 'r') as f:
             reader = csv.reader(f)
             _ = next(reader)
             for row in reader:

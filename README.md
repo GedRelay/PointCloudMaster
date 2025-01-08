@@ -26,7 +26,10 @@ PointCloudMaster
 │  └─visualizer.py
 ├─sceneloader
 │  ├─__init__.py
-│  └─scene_loader.py
+│  ├─datasets.json
+│  ├─hosts.json
+│  ├─scene_loader.py
+│  └─数据集.py
 ├─options.py
 ├─requirements.txt
 └─README.md
@@ -104,7 +107,8 @@ PointCloudMaster
     ...其他数据集
 
     {
-      "name": "这里填写数据集的名字，不要与其他数据集相同",
+      "name": "这里填写数据集的名字，不要与其他数据集相同", 
+      "hostname": "服务器名字，如果是本地数据集则不需要此字段，或者填写localhost",
       "root_path": "数据集根目录位置",
       "scenes": [
         {
@@ -121,6 +125,21 @@ PointCloudMaster
       ]
     }
 
+  ]
+}
+```
+- 如果数据集存放在服务器上，则需要填写`hostname`字段，否则不需要或者填写`localhost`。`hostname`字段与`sceneloader/hosts.json`中的服务器名字对应
+- `sceneloader/hosts.json`中填写服务器的信息，格式如下
+```json
+{
+  "hosts":[
+    {
+      "hostname": "服务器名字",
+      "ip": "服务器ip",
+      "username": "服务器用户名",
+      "private_key": "本机存放ssh私钥的位置，如C:/Users/Admin/.ssh/id_rsa"
+    },
+    ... 其他服务器信息
   ]
 }
 ```
@@ -145,7 +164,15 @@ class name(DatasetLoader_Base):
         ...
         return pcd_xyz, other_data
 ```
-
+- 注意，如果数据集存放在服务器上，则需要使用以下方法来获取数据（本地数据这么写也不会有影响）。其本质是将数据从服务器上下载到本地，然后再读取。当with语句结束时，会自动删除本地数据
+```python
+with self.remote.get(远程数据路径) as 本地数据路径:
+    load(本地数据路径)
+```
+- 注意，如果数据集存放在服务器上，需要获取某个目录下的所有文件名，可以使用以下方法（本地数据这么写也不会有影响）
+```python
+file_list = self.remote.listdir(远程目录路径)
+```
 
 
 ## other_data说明

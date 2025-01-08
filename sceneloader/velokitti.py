@@ -1,31 +1,35 @@
 # -*- coding: utf-8 -*-
 """
-@Time        :  2024/12/27 19:43
+@Time        :  2025/1/8 13:05
 @Author      :  GedRelay
 @Email       :  gedrelay@stu.jnu.edu.cn
-@Description :  kitti_doppler
+@Description :  velokitti
 """
 from sceneloader import DatasetLoader_Base
 import os
 import numpy as np
 from utils import Tools
 from PIL import Image
+import io
 
-class kitti_doppler(DatasetLoader_Base):
+class velokitti(DatasetLoader_Base):
     def __init__(self, scene_id, json_data):
-        super(kitti_doppler, self).__init__(scene_id, json_data)
+        super(velokitti, self).__init__(scene_id, json_data)
         self.img_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['image_path'])
         self.calib_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['calib_path'])
         self.label_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['label_path'])
 
         # 读取标定文件名
-        self.calib_filenames = os.listdir(self.calib_path)
+        self.calib_filenames = self.remote.listdir(self.calib_path)
+        self.calib_filenames.sort()
 
         # 读取图片文件名
-        self.image_filenames = os.listdir(self.img_path)
+        self.image_filenames = self.remote.listdir(self.img_path)
+        self.image_filenames.sort()
 
         # 读取标签文件
-        self.labels_filenames = os.listdir(self.label_path)
+        self.labels_filenames = self.remote.listdir(self.label_path)
+        self.labels_filenames.sort()
 
     def load_bbox2d(self, label_path):
         '''
@@ -33,14 +37,20 @@ class kitti_doppler(DatasetLoader_Base):
         :param label_path:
         :return:
         '''
-        labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 15)
+        try:
+            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 16)
+        except:
+            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 17)
         bboxes_2d = []
+        occluded = []
         for label in labels:
             if label[0] == 'DontCare':
                 continue
             bbox_2d = label[4:8].astype(np.float32)
             bboxes_2d.append(bbox_2d)
-        return bboxes_2d
+            occ = label[2].astype(np.float32)
+            occluded.append(occ)
+        return bboxes_2d, occluded
 
     def load_bbox3d(self, label_path, R0_inv, Tr_cam_velo):
         '''
@@ -48,7 +58,10 @@ class kitti_doppler(DatasetLoader_Base):
         :param label_path:
         :return:
         '''
-        labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 15)
+        try:
+            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 16)
+        except:
+            labels = np.loadtxt(label_path, delimiter=' ', dtype=str).reshape(-1, 17)
         bboxes_corners = []
         for label in labels:
             if label[0] == 'DontCare':
@@ -71,18 +84,20 @@ class kitti_doppler(DatasetLoader_Base):
         :return:
         '''
         pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
-        # x, y, z, intensity, rv
-        data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 5)
+        # x, y, z, intensity, rv, vcps
+        with self.remote.get(pcd_path) as pcd_path:
+            data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 6)
         pcd_xyz = data[:, :3]
         other_data = {}
         other_data['pointinfo-intensity'] = data[:, 3]
-        other_data['pointinfo-rv'] = data[:, 4]
 
-        other_data['calib'] = self.load_calib(os.path.join(self.calib_path, self.calib_filenames[frame_id]))
-        other_data['image'] = Image.open(os.path.join(self.img_path, self.image_filenames[frame_id]))
-        label_path = os.path.join(self.label_path, self.labels_filenames[frame_id])
-        other_data['bbox_2d'] = self.load_bbox2d(label_path)
-        other_data['bbox_corners_3d'] = self.load_bbox3d(label_path, other_data['calib']['R0_inv'], other_data['calib']['Tr_cam_velo'])
+        with self.remote.get(os.path.join(self.calib_path, self.calib_filenames[frame_id])) as calib_path:
+            other_data['calib'] = self.load_calib(calib_path)
+        with self.remote.get(os.path.join(self.img_path, self.image_filenames[frame_id])) as img_path:
+            other_data['image'] = load_image_to_memory(img_path)
+        with self.remote.get(os.path.join(self.label_path, self.labels_filenames[frame_id])) as label_path:
+            other_data['bbox_2d'], other_data['occluded'] = self.load_bbox2d(label_path)
+            other_data['bbox_corners_3d'] = self.load_bbox3d(label_path, other_data['calib']['R0_inv'], other_data['calib']['Tr_cam_velo'])
 
         return pcd_xyz, other_data
 
@@ -108,7 +123,7 @@ class kitti_doppler(DatasetLoader_Base):
         calib["R0"] = calib_["R0_rect:"].reshape(3, 3)
         calib["R0_inv"] = np.linalg.inv(calib["R0"])
         calib["Tr_velo_cam"] = calib_["Tr_velo_to_cam:"].reshape(3, 4)
-        calib["Tr_imu_velo"] = calib_["Tr_imu_to_velo:"].reshape(3, 4)
+        calib["Tr_imu_velo"] = calib_["TR_imu_to_velo:"].reshape(3, 4)
         calib["Tr_cam_velo"] = Tools.inverse_rigid_trans(calib["Tr_velo_cam"])
         return calib
 
@@ -124,4 +139,8 @@ def compute_3d_box_cam2(h, w, l, x, y, z, yaw):
     corners_3d_cam2 += np.vstack([x, y, z])
     return corners_3d_cam2
 
-
+def load_image_to_memory(img_path):
+    with open(img_path, 'rb') as file:
+        img_data = file.read()
+    image = Image.open(io.BytesIO(img_data))
+    return image
