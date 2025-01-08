@@ -14,6 +14,7 @@ def options():
     '''
     parser = argparse.ArgumentParser(description='options')
     # 场景加载参数
+    parser.add_argument('--jsonfile', type=str, default='datasets.json', help='数据集配置文件')
     parser.add_argument('--dataset', type=str, default='carla_4d', help='数据集名称，请与sceneloader/datasets.json中的名称一致')
     parser.add_argument('--scene_id', type=int, default=0, help='场景编号, 从0开始')
     parser.add_argument('--preload', type=bool, default=False, help='是否预加载数据')

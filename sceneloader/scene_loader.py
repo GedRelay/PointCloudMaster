@@ -15,16 +15,17 @@ from contextlib import contextmanager
 
 
 class SceneLoader:
-    def __init__(self, opt=None, dataset='carla_4d', scene_id=0, preload=False, preload_begin=0, preload_end=-1):
+    def __init__(self, opt=None, dataset='carla_4d', scene_id=0, preload=False, preload_begin=0, preload_end=-1, jsonfile='datasets.json'):
         # 注意如果opt不为None时后面的参数都不可用
         self.dataset = dataset
         self.scene_id = scene_id
         self.preload = preload
         self.preload_begin = preload_begin
         self.preload_end = preload_end
+        self.jsonfile = jsonfile
         self.__load_settings_by_opt(opt)
 
-        json_path = os.path.join(os.path.dirname(__file__), 'datasets.json')
+        json_path = os.path.join(os.path.dirname(__file__), self.jsonfile)
         with open(json_path, 'r') as f:
             json_data = json.load(f)
 
@@ -64,6 +65,7 @@ class SceneLoader:
             self.preload = opt.preload
             self.preload_begin = opt.preload_begin
             self.preload_end = opt.preload_end
+            self.jsonfile = opt.jsonfile
 
     def __preload_data_local(self):
         """

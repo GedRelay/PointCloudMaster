@@ -1,10 +1,10 @@
 {
   "hosts":[
     {
-      "hostname": "A100_01",
-      "ip": "172.27.8.20",
-      "username": "maziyuan",
-      "private_key": "C:/Users/Admin/.ssh/id_rsa"
+      "hostname": "服务器名字",
+      "ip": "服务器ip",
+      "username": "用户名",
+      "private_key": "本机ssh私钥位置，如C:/Users/Admin/.ssh/id_rsa"
     }
   ]
 }
