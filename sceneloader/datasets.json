@@ -279,14 +279,19 @@
 
     {
       "name": "carla4d_kitti",
-      "root_path": "Z:/dataset/carla4d_kitti_zrt/training",
+      "hostname": "A100_01",
+      "root_path": "/home/public/zrtdata/carla4d_kitti/",
       "scenes": [
         {
           "scene_id": 0,
-          "image_path": "image_2",
-          "pcd_path": "velodyne",
-          "calib_path": "calib",
-          "label_path": "label_2"
+          "image_path": "training/image_2",
+          "pcd_path": "training/velodyne",
+          "calib_path": "training/calib",
+          "label_path": "training/label_2",
+          "pose_path": "training/status",
+          "pickle_path_train": "kitti_infos_train.pkl",
+          "pickle_path_val": "kitti_infos_val.pkl"
+
         }
       ]
     },
@@ -324,6 +329,18 @@
           "pcd_path": "testing/velodyne",
           "calib_path": "testing/calib",
           "label_path": "testing/label_2"
+        }
+      ]
+    },
+
+    {
+      "name": "HeRCULES",
+      "hostname": "A100_01",
+      "root_path": "/home/public/zrtdata/HeRCULES/",
+      "scenes": [
+        {
+          "scene_id": 0,
+          "pcd_path": "LiDAR/Aeva"
         }
       ]
     }
