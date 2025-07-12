@@ -96,7 +96,10 @@ class RemoteClient:
             print(f'正在连接远程服务器{self.hostname}')
             self.ssh = paramiko.SSHClient()
             self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            private_key = paramiko.RSAKey.from_private_key_file(private_key)
+            try:
+                private_key = paramiko.RSAKey.from_private_key_file(private_key)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"私钥文件{private_key}不存在，请检查datasets/datasets.yaml中的设置是否正确")
             self.ssh.connect(ip, port=22, username=username, pkey=private_key)
             self.sftp = self.ssh.open_sftp()
 

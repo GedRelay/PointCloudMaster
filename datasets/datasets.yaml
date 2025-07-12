@@ -37,7 +37,8 @@ datasets:
   
 
   - name: carla4d
-    root_path: 'M:\dataset\carla4d'
+    hostname: A100_01
+    root_path: /home/public/mzydata/carla4d
     scenes:
       - scene_id: 0
         image_path: image

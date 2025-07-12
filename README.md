@@ -42,7 +42,17 @@ PointCloudMaster
 
 2. 运行`pip install -r requirements.txt` 指令安装依赖
 
-3. 请阅读并运行`demo`文件夹下的演示代码，运行以下指令查看演示1的可视化效果，其他演示代码的运行方法类似
+3. 修改`datasets/datasets.yaml`文件，添加远程服务器和数据集的相关信息。可以参考已有的数据集配置
+```yaml
+# datasets/datasets.yaml 文件内容
+hosts:
+  - hostname: 服务器名字
+    ip: 服务器ip
+    username: 服务器用户名
+    private_key: 本机存放ssh私钥的位置，如 C:/Users/Admin/.ssh/id_rsa
+```
+
+4. 请阅读并运行`demo`文件夹下的演示代码，运行以下指令查看演示1的可视化效果，其他演示代码的运行方法类似
 ```bash
 python -m demos.demo1_visualize
 ```
