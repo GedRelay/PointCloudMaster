@@ -1,0 +1,232 @@
+hosts:
+  - hostname: A100_01
+    ip: 123.123.123.123
+    username: root
+    private_key: C:/Users/Admin/.ssh/id_rsa
+
+
+datasets:
+  - name: aeva
+    hostname: A100_01
+    root_path: /home/public/mzydata/aeva
+    scenes:
+      - scene_id: 0
+        pcd_path: 00/frames
+        pose_path: 00/aeva_poses.txt
+      - scene_id: 1
+        pcd_path: 01/frames
+        pose_path: 01/aeva_poses.txt
+      - scene_id: 2
+        pcd_path: 02/frames
+        pose_path: 02/aeva_poses.txt
+      - scene_id: 3
+        pcd_path: 03/frames
+        pose_path: 03/aeva_poses.txt
+      - scene_id: 4
+        pcd_path: 04/frames
+        pose_path: 04/aeva_poses.txt
+      - scene_id: 5
+        pcd_path: 05/frames
+        pose_path: 05/aeva_poses.txt
+      - scene_id: 6
+        pcd_path: 06/frames
+        pose_path: 06/aeva_poses.txt
+      - scene_id: 7
+        pcd_path: 07/frames
+        pose_path: 07/aeva_poses.txt
+  
+
+  - name: carla4d
+    root_path: 'M:\dataset\carla4d'
+    scenes:
+      - scene_id: 0
+        image_path: image
+        pcd_path: lidar
+        velocity_path: label/velocity
+        segmentation_path: label/segmentation
+        calib_path: calib
+        pose_path: ego/poses.csv
+        vehicle_status_path: ego/vehicle_status.csv
+
+
+  - name: helipr
+    hostname: A100_01
+    root_path: /home/public/mzydata/helipr
+    scenes:
+      - scene_id: 0
+        pcd_path: KAIST05/LiDAR/Aeva
+  
+
+  - name: kitti_tracking
+    hostname: A100_01
+    root_path: /home/public/mzydata/kitti_tracking/training
+    scenes:
+      - scene_id: 0
+        image_path: image_02/0000
+        pcd_path: velodyne_clip_with_velocity/0000
+        calib_path: calib/0000.txt
+        label_path: label_02/0000.txt
+        pose_path: oxts/0000.txt
+      - scene_id: 1
+        image_path: image_02/0001
+        pcd_path: velodyne_clip_with_velocity/0001
+        calib_path: calib/0001.txt
+        label_path: label_02/0001.txt
+        pose_path: oxts/0001.txt
+      - scene_id: 2
+        image_path: image_02/0002
+        pcd_path: velodyne_clip_with_velocity/0002
+        calib_path: calib/0002.txt
+        label_path: label_02/0002.txt
+        pose_path: oxts/0002.txt
+      - scene_id: 3
+        image_path: image_02/0003
+        pcd_path: velodyne_clip_with_velocity/0003
+        calib_path: calib/0003.txt
+        label_path: label_02/0003.txt
+        pose_path: oxts/0003.txt
+      - scene_id: 4
+        image_path: image_02/0004
+        pcd_path: velodyne_clip_with_velocity/0004
+        calib_path: calib/0004.txt
+        label_path: label_02/0004.txt
+        pose_path: oxts/0004.txt
+      - scene_id: 5
+        image_path: image_02/0005
+        pcd_path: velodyne_clip_with_velocity/0005
+        calib_path: calib/0005.txt
+        label_path: label_02/0005.txt
+        pose_path: oxts/0005.txt
+      - scene_id: 6
+        image_path: image_02/0006
+        pcd_path: velodyne_clip_with_velocity/0006
+        calib_path: calib/0006.txt
+        label_path: label_02/0006.txt
+        pose_path: oxts/0006.txt
+      - scene_id: 7
+        image_path: image_02/0007
+        pcd_path: velodyne_clip_with_velocity/0007
+        calib_path: calib/0007.txt
+        label_path: label_02/0007.txt
+        pose_path: oxts/0007.txt
+      - scene_id: 8
+        image_path: image_02/0008
+        pcd_path: velodyne_clip_with_velocity/0008
+        calib_path: calib/0008.txt
+        label_path: label_02/0008.txt
+        pose_path: oxts/0008.txt
+      - scene_id: 9
+        image_path: image_02/0009
+        pcd_path: velodyne_clip_with_velocity/0009
+        calib_path: calib/0009.txt
+        label_path: label_02/0009.txt
+        pose_path: oxts/0009.txt
+      - scene_id: 10
+        image_path: image_02/0010
+        pcd_path: velodyne_clip_with_velocity/0010
+        calib_path: calib/0010.txt
+        label_path: label_02/0010.txt
+        pose_path: oxts/0010.txt
+      - scene_id: 11
+        image_path: image_02/0011
+        pcd_path: velodyne_clip_with_velocity/0011
+        calib_path: calib/0011.txt
+        label_path: label_02/0011.txt
+        pose_path: oxts/0011.txt
+      - scene_id: 12
+        image_path: image_02/0012
+        pcd_path: velodyne_clip_with_velocity/0012
+        calib_path: calib/0012.txt
+        label_path: label_02/0012.txt
+        pose_path: oxts/0012.txt
+      - scene_id: 13
+        image_path: image_02/0013
+        pcd_path: velodyne_clip_with_velocity/0013
+        calib_path: calib/0013.txt
+        label_path: label_02/0013.txt
+        pose_path: oxts/0013.txt
+      - scene_id: 14
+        image_path: image_02/0014
+        pcd_path: velodyne_clip_with_velocity/0014
+        calib_path: calib/0014.txt
+        label_path: label_02/0014.txt
+        pose_path: oxts/0014.txt
+      - scene_id: 15
+        image_path: image_02/0015
+        pcd_path: velodyne_clip_with_velocity/0015
+        calib_path: calib/0015.txt
+        label_path: label_02/0015.txt
+        pose_path: oxts/0015.txt
+      - scene_id: 16
+        image_path: image_02/0016
+        pcd_path: velodyne_clip_with_velocity/0016
+        calib_path: calib/0016.txt
+        label_path: label_02/0016.txt
+        pose_path: oxts/0016.txt
+      - scene_id: 17
+        image_path: image_02/0017
+        pcd_path: velodyne_clip_with_velocity/0017
+        calib_path: calib/0017.txt
+        label_path: label_02/0017.txt
+        pose_path: oxts/0017.txt
+      - scene_id: 18
+        image_path: image_02/0018
+        pcd_path: velodyne_clip_with_velocity/0018
+        calib_path: calib/0018.txt
+        label_path: label_02/0018.txt
+        pose_path: oxts/0018.txt
+      - scene_id: 19
+        image_path: image_02/0019
+        pcd_path: velodyne_clip_with_velocity/0019
+        calib_path: calib/0019.txt
+        label_path: label_02/0019.txt
+        pose_path: oxts/0019.txt
+      - scene_id: 20
+        image_path: image_02/0020
+        pcd_path: velodyne_clip_with_velocity/0020
+        calib_path: calib/0020.txt
+        label_path: label_02/0020.txt
+        pose_path: oxts/0020.txt
+  
+
+  - name: carla360
+    hostname: A100_01
+    root_path: /home/public/zrtdata/carla360/training
+    scenes:
+      - scene_id: 0
+        image_path: image_2
+        pcd_path: velodyne
+        calib_path: calib
+        label_path: label_2
+        pose_path: status
+  
+
+  - name: cpdd
+    hostname: A100_01
+    root_path: /home/public/mzydata/cpdd/scenes
+    scenes:
+      - scene_id: 0
+        pcd_path: Sport_Complex_01_Day/lidar
+        pose_path: Sport_Complex_01_Day/ego_pose
+        image_path: Sport_Complex_01_Day/camera/front_left
+        label_path: Sport_Complex_01_Day/label
+        calib_path: Sport_Complex_01_Day/calib/camera/front_left.json
+      - scene_id: 1
+        pcd_path: Library_01_Day/lidar
+        pose_path: Library_01_Day/ego_pose
+        image_path: Library_01_Day/camera/front_left
+        label_path: public/mzydata/cpdd/detection/Library_01_Day/label
+        calib_path: Library_01_Day/calib/camera/front_left.json
+      - scene_id: 2
+        pcd_path: Stream_01_Day/lidar
+        pose_path: Stream_01_Day/ego_pose
+        image_path: Stream_01_Day/camera/front_right
+        label_path: public/mzydata/cpdd/detection/Stream_01_Day/label
+        calib_path: Stream_01_Day/calib/camera/front_right.json
+      - scene_id: 3
+        pcd_path: River_Island_01_Day/lidar
+        pose_path: River_Island_01_Day/ego_pose
+        image_path: River_Island_01_Day/camera/front_left
+        label_path: public/mzydata/cpdd/detection/River_Island_01_Day/label
+        calib_path: River_Island_01_Day/calib/camera/front_left.json
+

@@ -1,0 +1,28 @@
+scene_config:
+    datasets_yaml: datasets/datasets.yaml
+    dataset: carla4d
+    scene_id: 0
+
+visualizer_config:
+    window_name: PCM
+    window_height: 540
+    window_width: 960
+    window_left: 50  # 窗口生成时的左边距
+    window_top: 50  # 窗口生成时的上边距
+    
+    background_color: [1.0, 1.0, 1.0]  # 背景RGB颜色，单值范围为[0,1]
+    first_window:
+        form: point  # 绘制形式, point表示点云, voxel表示体素化, octree表示八叉树
+        point_size: 2.0  # 点大小
+        voxel_size: 0.5  # 体素大小
+        octree_max_depth: 8  # 八叉树最大深度
+    second_window:
+        form: point  # 绘制形式, point表示点云, voxel表示体素化, octree表示八叉树
+        point_size: 2.0  # 点大小
+        voxel_size: 0.5  # 体素大小
+        octree_max_depth: 8  # 八叉树最大深度
+    
+    camera_sync: true  # 双窗口时是否相机同步, true表示同步, false表示不同步
+    axis: 5  # 坐标轴大小, 0表示不绘制坐标轴
+    init_camera_rpy: null  # 初始相机姿态, [roll, pitch, yaw]，如果为null则不设置
+    init_camera_T: null  # 初始相机位置, [x, y, z]，单位为米，如果为null则不设置

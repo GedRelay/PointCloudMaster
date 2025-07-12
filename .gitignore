@@ -1,15 +1,8 @@
-/*
+.idea/
+.vscode/
+__pycache__/
+*.pyc
 
-!demo/
-
-!utils/
-
-!sceneloader/
-
-!.gitignore
-
-!README.md
-
-!options.py
-
-!requirements.txt
+fetch_cache/
+*.sh
+*.bat

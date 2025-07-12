@@ -1,38 +1,48 @@
 # -*- coding: utf-8 -*-
-"""
-@Time        :  2024/12/16 14:27
-@Author      :  GedRelay
-@Email       :  gedrelay@stu.jnu.edu.cn
-@Description :  kitti_tracking
-"""
-from sceneloader import DatasetLoader_Base
+from core import DatasetBase, Tools
 import os
 import numpy as np
-from utils import Tools
 from PIL import Image
 import io
 
-class kitti_tracking(DatasetLoader_Base):
-    def __init__(self, scene_id, json_data):
-        super(kitti_tracking, self).__init__(scene_id, json_data)
-        self.img_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['image_path'])
-        self.calib_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['calib_path'])
-        self.label_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['label_path'])
-        self.pose_path = os.path.join(json_data['root_path'], json_data['scenes'][scene_id]['pose_path'])
-
-        # 读取标定文件
-        self.calib = self.load_calib()
-
-        # 读取图片文件名
-        self.image_filenames = self.remote.listdir(self.img_path)
-
-        # 读取标签文件
-        with self.remote.get(self.label_path) as label_path:
+class kitti_tracking(DatasetBase):
+    def __init__(self, scene_id, dataset_config):
+        super().__init__(scene_id, dataset_config)
+        self.pcd_filenames = self.remote.listdir(self.pcd_path)
+        self.pcd_filenames.sort(key=lambda x: int(x.split('.')[0]))
+        self.calib = self.load_calib()  # 读取标定文件
+        self.image_filenames = self.remote.listdir(self.image_path)  # 读取图片文件名
+        self.image_filenames = [f for f in self.image_filenames if f.endswith('.png')]
+        self.image_filenames.sort(key=lambda x: int(x.split('.')[0]))
+        with self.remote.get(self.label_path) as label_path: # 读取标签文件
             self.labels_data = np.loadtxt(label_path, delimiter=' ', dtype=str)
+        self.Rs, self.Ts = self.load_poses(scene_id)  # 读取位姿文件
 
-        # 读取位姿文件
-        self.Rs, self.Ts = self.load_poses(scene_id)
 
+    def load_frame(self, frame_id):
+        with self.remote.get(os.path.join(self.pcd_path, self.pcd_filenames[frame_id])) as pcd_path:
+            # x, y, z, intensity, rv, vx, vy, vz
+            data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 8)
+        self.frame_data.pcd.points = data[:, :3]
+        self.frame_data.pcd.intensity = data[:, 3]
+        self.frame_data.pcd.v_r = data[:, 4]
+        self.frame_data.pcd.velocity = data[:, 5:8]
+
+        self.frame_data.calib = self.calib
+
+        with self.remote.get(os.path.join(self.image_path, self.image_filenames[frame_id])) as img_path:
+            self.frame_data.image = load_image_to_memory(img_path)
+        
+        self.frame_data.bbox_2d, self.frame_data.bbox_2d_ids = self.load_bbox2d(frame_id)
+
+        self.frame_data.bbox_3d_corners, self.frame_data.bbox_3d_ids = self.load_bbox3d(frame_id)
+
+        self.frame_data.pose.R = self.Rs[frame_id]
+        self.frame_data.pose.T = self.Ts[frame_id]
+
+        return self.frame_data
+
+    
     def load_bbox2d(self, frame_id):
         '''
         获取2d bbox
@@ -50,6 +60,7 @@ class kitti_tracking(DatasetLoader_Base):
             bboxes_2d.append(bbox_2d)
             bboxes_ids.append(id)
         return bboxes_2d, bboxes_ids
+
 
     def load_bbox3d(self, frame_id):
         '''
@@ -75,32 +86,6 @@ class kitti_tracking(DatasetLoader_Base):
             bboxes_corners.append(corners_3d_velo)
             bboxes_ids.append(id)
         return bboxes_corners, bboxes_ids
-
-    def load_frame(self, frame_id):
-        '''
-        加载某一帧的数据
-        :param frame_id: 帧id
-        :return:
-        '''
-        pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
-        # x, y, z, intensity, rv, vx, vy, vz
-        with self.remote.get(pcd_path) as pcd_path:
-            data = np.fromfile(pcd_path, dtype=np.float32).reshape(-1, 8)
-        pcd_xyz = data[:, :3]
-        other_data = {}
-        other_data['pointinfo-intensity'] = data[:, 3]
-        other_data['pointinfo-rv'] = data[:, 4]
-        other_data['pointinfo-real_v'] = data[:, 5:8]
-
-        other_data['calib'] = self.calib
-        with self.remote.get(os.path.join(self.img_path, self.image_filenames[frame_id])) as img_path:
-            other_data['image'] = load_image_to_memory(img_path)
-        other_data['bbox_2d'], other_data['bbox_2d_ids'] = self.load_bbox2d(frame_id)
-        other_data['bbox_corners_3d'], other_data['bbox_3d_ids'] = self.load_bbox3d(frame_id)
-        other_data['pose-R'] = self.Rs[frame_id]
-        other_data['pose-T'] = self.Ts[frame_id]
-
-        return pcd_xyz, other_data
 
     def load_poses(self, scene_id):
         '''
@@ -143,6 +128,7 @@ class kitti_tracking(DatasetLoader_Base):
                     Ts.append(t)
         return Rs, Ts
 
+
     def load_calib(self):
         '''
         读取标定文件
@@ -160,13 +146,13 @@ class kitti_tracking(DatasetLoader_Base):
         calib["P0"] = calib_["P0:"].reshape(3, 4)  # 投影矩阵
         calib["P1"] = calib_["P1:"].reshape(3, 4)
         calib["P2"] = calib_["P2:"].reshape(3, 4)
-        calib["P2_inv"] = Tools.inverse_rigid_trans(calib["P2"])
+        calib["P2_inv"] = Tools.Math.inverse_rigid_trans(calib["P2"])
         calib["P3"] = calib_["P3:"].reshape(3, 4)
         calib["R0"] = calib_["R_rect"].reshape(3, 3)
         calib["R0_inv"] = np.linalg.inv(calib["R0"])
         calib["Tr_velo_cam"] = calib_["Tr_velo_cam"].reshape(3, 4)
         calib["Tr_imu_velo"] = calib_["Tr_imu_velo"].reshape(3, 4)
-        calib["Tr_cam_velo"] = Tools.inverse_rigid_trans(calib["Tr_velo_cam"])
+        calib["Tr_cam_velo"] = Tools.Math.inverse_rigid_trans(calib["Tr_velo_cam"])
         return calib
 
 

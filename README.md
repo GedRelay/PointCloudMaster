@@ -6,163 +6,106 @@
 
 # 目录结构说明
 
-本项目文件目录如下
+本项目主要文件目录如下
 
 ```
 PointCloudMaster
-├─demo
-│  ├─demo0_visualize.py
-│  ├─demo1_filter1.py
-│  ├─demo2_filter2.py
-│  ├─demo3_Filters_and_Tools.py
-│  ├─demo4_draw_global_map.py
-│  ├─demo5_compare.py
-│  ├─demo6_voxel_and_octree.py
-│  └─demo7_kitti_tracking.py
-├─utils
-│  ├─__init__.py
-│  ├─filters.py
-│  ├─tools.py
-│  └─visualizer.py
-├─sceneloader
-│  ├─__init__.py
-│  ├─datasets.json
-│  ├─hosts.json
-│  ├─scene_loader.py
-│  └─数据集.py
-├─options.py
-├─requirements.txt
-└─README.md
+├─core                              # 存放核心代码
+│  ├─config_loader.py               # 配置加载器
+│  ├─default_config.yaml            # 默认配置文件
+│  ├─filters.py                     # 常用的过滤函数
+│  ├─scene_loader.py                # 场景加载器
+│  ├─tools.py                       # 常用的工具函数
+│  └─visualizer.py                  # 可视化器
+├─datasets                          # 存放数据集相关文件
+│  ├─datasets.yaml                  # 所有数据集配置文件
+│  └─*.py                           # 自定义的特定数据集对象
+├─demos                             # 存放演示代码
+│  ├─demo1_visualize.py             # 演示1: 基础的可视化演示
+│  ├─demo2_filter.py                # 演示2: 过滤函数的使用方法
+│  ├─demo3_Tools_and_Filters.py     # 演示3: 自带的工具函数和过滤函数的使用方法
+│  ├─demo4_global_map.py            # 演示4: 全局地图的可视化
+│  ├─demo5_compare.py               # 演示5: 双窗口对比可视化
+│  ├─demo6_form.py                  # 演示6: 点云，体素，八叉树的可视化
+│  ├─demo7_kitti_tracking.py        # 演示7: KITTI跟踪数据的可视化
+│  └─demo8_headless.py              # 演示8: 无头模式的使用
+├─requirements.txt                  # 项目依赖包列表
+└─README.md                         # 项目说明文档
 ```
-
-- `demo`：帮助你快速上手的演示示例
-- `utils`：包含可视化工具以及其他工具函数
-- `sceneloader`：数据加载相关文件
-- `options.py`：默认运行参数
-- `requirements.txt`：项目依赖包列表
-- `README.md`：就是你现在在看的这个文档
-
 
 
 # 快速上手
 
 安装：
 
-1. 作者的python版本为3.8.18, 请确保你使用的环境中python版本为3.8
+1. 作者的python版本为3.8.18, 不保证其他python版本环境运行正常
 
 2. 运行`pip install -r requirements.txt` 指令安装依赖
 
-3. 请阅读并运行`demo`文件夹下的演示代码
-
-
-
-# Tools类
-
-其中包含许多工具函数
-
-| 函数                     | 作用                       |
-|------------------------|--------------------------|
-| `get_bbox_from_points` | 从点云中获取包围盒                |
-| `get_bbox_by_corners`  | 根据八个角点获取包围盒              |
-| `get_arrow`            | 获取箭头                     |
-| `euler2mat`            | 欧拉角转旋转矩阵                 |
-| `get_id_times`         | 获取每个id的出现次数              |
-| `get_sphere`           | 获取球体                     |
-| `dbscan`               | 使用sklearn的dbscan进行聚类     |
-| `dbscan2`              | 使用open3d的dbscan进行聚类      |
-| `mean_shift`           | 使用sklearn的mean_shift进行聚类 |
-| `kmeans`               | 使用sklearn的kmeans进行聚类     |
-| `xyz2abrho`            | 将三维空间点云转换为极坐标空间点云        |
-| `inverse_rigid_trans`  | 对刚体变换矩阵求逆                |
-
-
-# Filters类
-
-其中包含很多常用的过滤函数
-
-
-| 函数                        | 作用               |
-|:--------------------------|:-----------------|
-| `xyz2v`                   | 将三维空间点云转换为速度空间点云 |
-| `add_noise_v`             | 为速度添加高斯噪声        |
-| `add_noise_xyz`           | 在3d点云射线长度上添加高斯噪声 |
-| `remove_points_by_mask`   | 去除mask所对应的点      |
-| `remain_points_by_mask`   | 保留mask所对应的点      |
-| `remove_points_by_id`     | 通过id去除点          |
-| `remain_points_by_id`     | 通过id保留点          |
-| `remain_points_by_z_axis` | 保留z轴在一定范围之间的点    |
-| `remain_points_by_range` | 保留范围内的点          |
-
+3. 请阅读并运行`demo`文件夹下的演示代码，运行以下指令查看演示1的可视化效果，其他演示代码的运行方法类似
+```bash
+python -m demos.demo1_visualize
+```
 
 
 
 # 如何添加自定义数据集
 
-1. 在`sceneloader/datasets.json`中按照格式添加数据集每个场景的点云存放目录以及位姿文件位置
+1. 在`datasets/datasets.yaml`中按照格式添加数据集每个场景的相关数据文件存放位置
+- 如果数据集存放在服务器上，则需要填写`hostname`字段，否则不需要或者填写`localhost`。`hostname`字段与`hosts`设置中的服务器名字对应
+- 在`scenes`下的字段中，如果字段名以`path`结尾，将会在后续的代码中被自动拼接上数据集根目录位置形成完整路径，并自动添加到后续的数据集加载器类中，比如可以直接使用`self.pcd_path`来获取点云数据的完整路径
 
-```json
-{
-  "datasets": 
-  [
-    ...其他数据集
 
-    {
-      "name": "这里填写数据集的名字，不要与其他数据集相同", 
-      "hostname": "服务器名字，如果是本地数据集则不需要此字段，或者填写localhost",
-      "root_path": "数据集根目录位置",
-      "scenes": [
-        {
-          "scene_id": 0,
-          "pcd_path": "0号场景点云存放目录，确保该目录下只有点云文件，路径相对于数据集根目录",
-           后面可以根据数据集继续添加数据集特有的数据路径，如图片路径，标签路径，车辆状态路径等等
-        },
-        {
-          "scene_id": 1,
-          "pcd_path": "1号场景点云存放目录，确保该目录下只有点云文件，路径相对于数据集根目录",
-           后面可以根据数据集继续添加数据集特有的数据路径，如图片路径，标签路径，车辆状态路径等等
-        },
+```yaml
+hosts:
+  - hostname: 服务器名字
+    ip: 服务器ip
+    username: 服务器用户名
+    private_key: 本机存放ssh私钥的位置，如 C:/Users/Admin/.ssh/id_rsa
+
+  ...其他服务器信息
+
+datasets:
+  ...其他数据集
+  
+  - name: 这里填写数据集的名字，不要与其他数据集相同
+    hostname: 服务器名字，如果是本地数据集则不需要此字段，或者填写localhost
+    root_path: 数据集根目录位置
+    scenes:
+      - scene_id: 0
+        pcd_path: 0号场景点云存放目录，确保该目录下只有点云文件，路径相对于数据集根目录
+        后面可以根据数据集继续添加数据集特有的数据路径，如图片路径，标签路径，车辆状态路径等等
+        注意：这里以path结尾的字段将会在后续的代码中被自动拼接上数据集根目录位置形成完整路径，并自动添加到后续的数据集加载器中
+      - scene_id: 1
+        pcd_path: 0号场景点云存放目录，确保该目录下只有点云文件，路径相对于数据集根目录
         ...
-      ]
-    }
-
-  ]
-}
-```
-- 如果数据集存放在服务器上，则需要填写`hostname`字段，否则不需要或者填写`localhost`。`hostname`字段与`sceneloader/hosts.json`中的服务器名字对应
-- `sceneloader/hosts.json`中填写服务器的信息，格式如下
-```json
-{
-  "hosts":[
-    {
-      "hostname": "服务器名字",
-      "ip": "服务器ip",
-      "username": "服务器用户名",
-      "private_key": "本机存放ssh私钥的位置，如C:/Users/Admin/.ssh/id_rsa"
-    },
-    ... 其他服务器信息
-  ]
-}
+  
+  ...其他数据集
 ```
 
-2. 在`sceneloader`目录下添加python文件，文件命名为：`数据集名字.py`
-    1. 文件中按照以下模板进行实现，注意：类的命名要为`数据集名字`
-    2.  `load_frame(self, frame_id)`：加载某一帧的数据。返回一个大小为 `N*3` 的 `numpy` 点云数据`pcd_xyz`，和一个字典`other_data`，该字典的key为字符串，值为对应数据。每个数据集包含的数据都有区别，这些数据都被存放在`other_data`中
+
+2. 在`datasets`目录下添加python文件，文件命名为：`数据集名字.py`
+- 文件中按照以下模板进行实现，注意：类的命名要为`数据集名字`
+- `load_frame(self, frame_id)`：加载某一帧的数据，保存到`self.frame_data`中。最后返回`self.frame_data`
+
 
 ```python
-from sceneloader import DatasetLoader_Base
+from sceneloader import DatasetBase
 import os
 
-class name(DatasetLoader_Base):
-    def __init__(self, scene_id, json_data):
-        super(DatasetLoader_Name, self).__init__(scene_id, json_data)
-        # 在此可以添加数据集特有的初始化操作
+class name(DatasetBase):
+    def __init__(self, scene_id, dataset_config):
+        super().__init__(scene_id, dataset_config)
+        self.pcd_filenames = self.remote.listdir(self.pcd_path)  # 获取点云文件名列表
+        self.pcd_filenames.sort(key=lambda x: int(x.split('.')[0]))  # 假设文件名为数字，按数字排序
+        # 在此之后可以添加数据集特有的初始化操作
 
     def load_frame(self, frame_id):
-        pcd_path = os.path.join(self.pcd_data_path, self.filenames[frame_id])
-        # 在此实现方法以读取点云等数据
-        # 除了点云数据外，还可以读取其他数据，如图片，标注，这些数据都应该存放在other_data中
+        pcd_path = os.path.join(self.pcd_path, self.pcd_filenames[frame_id])
+        # 在此实现方法以读取点云等数据保存到self.frame_data中
+        # 除了点云数据外，还可以读取其他数据，如图片，标注，这些数据都可以存放在self.frame_data中
         ...
-        return pcd_xyz, other_data
+        return self.frame_data
 ```
 - 注意，如果数据集存放在服务器上，则需要使用以下方法来获取数据（本地数据这么写也不会有影响）。其本质是将数据从服务器上下载到本地，然后再读取。当with语句结束时，会自动删除本地数据
 ```python
@@ -175,13 +118,25 @@ file_list = self.remote.listdir(远程目录路径)
 ```
 
 
-## other_data说明
+## frame_data说明
+`frame_data`是一个`EasyDict`类型字典，用于存储当前帧中的所有信息，`frame_data`的默认结构如下：
 
-`other_data`是点云数据中除了`x,y,z`以外的所有数据。由于不同数据集的点云字段各不相同，因此设计了该数据结构
-
-`other_data`是一个字典，键为字符串，值为任意其他数据。注意，字符串的命名根据其作用是具有一定的要求的：
-
-- 以`pointinfo-`开头的数据表示点云中每个点的属性值，比如颜色`pointinfo-color`，标签`pointinfo-label`等。这些数据的长度要与点云数量对应。其中`pointinfo-color`较为特殊，若有，则会在可视化中绘制出来
-- 以`geometry-`开头的数据表示几何元素，若有，则会在可视化中绘制出来。目前支持的有`geometry-bboxes`, `geometry-arrows`, `geometry-spheres`。这些数据为列表类型，列表中为单个的几何元素
-- 以`pose-`开头的数据表示位姿信息，`pose-R`表示旋转矩阵，`pose-T`表示平移向量
-
+```python
+frame_data = EasyDict({
+    'pcd': {  # 点云数据，在此之下的所有数据都表示点云的属性，如颜色，标签，强度等。所有点云相关数据的行数必须与points的行数一致
+        'points': None,  # 点云数据，是一个N x 3的numpy数组，表示点云的三维坐标
+        'colors': None,  # 点云颜色数据，是一个N x 3的numpy数组，表示点云的RGB颜色值，如果为None，则使用默认渲染颜色
+        ...  # 其他点云相关数据，注意，在pcd之下的数据的行数必须与points的行数一致，表示每个点的属性。例如intensity, label等
+    },
+    'geometry': {  # 几何元素数据，包含箭头，球体，三维包围盒。可视化时会绘制这些几何元素，空列表表示不绘制
+        'arrows': [],  # 箭头
+        'spheres': [],  # 球体
+        'boxes': [],  # 三维包围盒
+    },
+    'pose': {  # 位姿信息，包含旋转矩阵和平移向量
+        'R': None,  # 旋转矩阵
+        'T': None,  # 平移向量
+    }
+    ... # 其他数据，可以根据需要随意添加
+})
+```
