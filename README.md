@@ -14,6 +14,7 @@ PointCloudMaster
 │  ├─config_loader.py               # 配置加载器
 │  ├─default_config.yaml            # 默认配置文件
 │  ├─filters.py                     # 常用的过滤函数
+│  ├─frame_data.py                  # 帧数据类，存储当前帧的所有信息
 │  ├─scene_loader.py                # 场景加载器
 │  ├─tools.py                       # 常用的工具函数
 │  └─visualizer.py                  # 可视化器
@@ -129,7 +130,7 @@ file_list = self.remote.listdir(远程目录路径)
 
 
 ## frame_data说明
-`frame_data`是一个`EasyDict`类型字典，用于存储当前帧中的所有信息，`frame_data`的默认结构如下：
+`frame_data`是一个`FrameData`类型对象，用于存储当前帧中的所有信息，`frame_data`的基本结构如下：
 
 ```python
 frame_data = EasyDict({
@@ -149,4 +150,7 @@ frame_data = EasyDict({
     }
     ... # 其他数据，可以根据需要随意添加
 })
+
+# 可以使用 frame_data.新增属性名 = 属性值 的方式添加其他数据，如
+frame_data.frame_name = "frame_0"  # 添加帧名称
 ```
