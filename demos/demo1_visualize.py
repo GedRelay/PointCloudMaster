@@ -7,6 +7,7 @@ if __name__ == '__main__':
     # 1. 可以手动修改目标配置文件*.yaml中的参数
     # 2. 也可以通过命令行参数传入配置进行覆盖， 例如：python -m demos.demo1_visualize --scene_config.dataset carla_4d --scene_config.scene_id 0
     # 3. 也可以在代码中直接修改配置进行覆盖（如下）
+    # 三种方式的优先级为：代码中修改 > 命令行参数 > 配置文件
     config = load_config('core/default_config.yaml')
     config.scene_config.dataset = 'carla4d'
     config.scene_config.scene_id = 0

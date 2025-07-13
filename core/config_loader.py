@@ -4,15 +4,23 @@ from easydict import EasyDict
 import argparse
 import json
 
-def load_config(config_path: str) -> EasyDict:
+def load_config(config_path=None) -> EasyDict:
     """
     加载配置文件并返回一个 EasyDict 对象。
     :param config_path: 配置文件的路径
     :return: EasyDict 对象，包含配置参数
     """
+    args = parse_args()
+
+    if args.config_path is not None:
+        config_path = args.config_path
+    else:
+        if config_path is None:
+            raise ValueError("配置文件路径为空，请在调用load_config()时 或者 在命令行中使用--config_path参数提供一个有效的路径!")
+    print(f"加载配置文件: {config_path}")
     with open(config_path, 'r', encoding='utf-8') as file:
         config = yaml.safe_load(file)
-    args = parse_args()
+
     # 如果命令行参数不为None，则覆盖配置文件中的相应参数
     config = merge_args_with_config(config, args)
     return EasyDict(config)
@@ -25,6 +33,8 @@ def parse_args() -> argparse.Namespace:
     :return: argparse.Namespace 对象，包含解析后的参数。
     """
     parser = argparse.ArgumentParser(description='config')
+    # 参数文件路径
+    parser.add_argument('--config_path', type=str, default=None, help='配置文件路径')
     # 场景加载参数
     parser.add_argument('--scene_config.datasets_yaml', type=str, default=None, help='数据集配置文件路径')
     parser.add_argument('--scene_config.dataset', type=str, default=None, help='数据集名称')
