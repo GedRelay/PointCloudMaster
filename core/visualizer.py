@@ -5,10 +5,11 @@ import time
 from tqdm import tqdm
 from pynput import keyboard
 import tkinter as tk
-import threading
 from easydict import EasyDict
 from core import SceneLoader, Tools
 from typing import Union
+from core.frame_data import FrameData
+
 
 class Visualizer():
     def __init__(self, config: EasyDict):
@@ -74,29 +75,16 @@ class Visualizer():
         self.init_camera_T = config.init_camera_T
         self.camera_sync = config.camera_sync
 
-    def draw_points(self, frame_data: Union[EasyDict, np.ndarray]):
+
+    def draw_points(self, frame_data: Union[FrameData, np.ndarray]):
         '''
         绘制点云
         :param frame_data: 点云数据，包含点云坐标和其他几何数据。或者直接传入点云坐标数组
         :return:
         '''
         if isinstance(frame_data, np.ndarray):
-            # 如果传入的是点云坐标数组，则创建一个EasyDict对象
-            frame_data = EasyDict({
-                'pcd': {
-                    'points': frame_data,
-                    'colors': None,
-                },
-                'geometry': {
-                    'arrows': [],
-                    'spheres': [],
-                    'boxes': [],
-                },
-                'pose': {
-                    'R': None,
-                    'T': None,
-                }
-            })
+            # 如果传入的是点云坐标数组，则创建一个FrameData对象
+            frame_data = FrameData(points=frame_data)
 
 
         vis = o3d.visualization.Visualizer()
@@ -377,7 +365,7 @@ class Visualizer():
         self.draw_points(points_world)
 
 
-    def compare_two_point_clouds(self, frame_data1: Union[EasyDict, np.ndarray], frame_data2: Union[EasyDict, np.ndarray]):
+    def compare_two_point_clouds(self, frame_data1: Union[FrameData, np.ndarray], frame_data2: Union[FrameData, np.ndarray]):
         '''
         双窗口比较两个点云
         :param frame_data1: 第一个点云数据，包含点云坐标和其他几何数据。或者直接传入点云坐标数组
@@ -385,37 +373,9 @@ class Visualizer():
         :return:
         '''
         if isinstance(frame_data1, np.ndarray):
-            frame_data1 = EasyDict({
-                'pcd': {
-                    'points': frame_data1,
-                    'colors': None,
-                },
-                'geometry': {
-                    'arrows': [],
-                    'spheres': [],
-                    'boxes': [],
-                },
-                'pose': {
-                    'R': None,
-                    'T': None,
-                }
-            })
+            frame_data1 = FrameData(points=frame_data1)
         if isinstance(frame_data2, np.ndarray):
-            frame_data2 = EasyDict({
-                'pcd': {
-                    'points': frame_data2,
-                    'colors': None,
-                },
-                'geometry': {
-                    'arrows': [],
-                    'spheres': [],
-                    'boxes': [],
-                },
-                'pose': {
-                    'R': None,
-                    'T': None,
-                }
-            })
+            frame_data2 = FrameData(points=frame_data2)
 
         # 第一个窗口
         vis1 = o3d.visualization.Visualizer()

@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
-from core import load_config, SceneLoader, Visualizer
+from core import load_config, SceneLoader, Visualizer, FrameData
 import numpy as np
 
 
-# 定义过滤函数，该函数的输入是帧数据，输出是经过自定义处理后的数据
-def remove_specified_id(frame_data):
+# 定义过滤函数，该函数的输入是帧数据，输出是经过自定义处理后的数据，类型为FrameData
+def remove_specified_id(frame_data: FrameData) -> FrameData:
     '''
     过滤函数, 去除指定id的点云数据
     :param frame_data: 帧数据
     '''
+    print(frame_data)  # 可以打印帧数据查看其内容
+
     unique_id = np.unique(frame_data.pcd.id)
     print("当前帧点云的唯一ID:", unique_id)
 

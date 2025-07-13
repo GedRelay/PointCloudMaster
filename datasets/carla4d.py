@@ -39,8 +39,8 @@ class carla4d(DatasetBase):
             # id, label
             data = np.fromfile(f, dtype=np.float32).reshape(-1, 2)
         
-        self.frame_data.pcd.id = data[:, 0].astype(np.int32)
-        self.frame_data.pcd.label = data[:, 1].astype(np.int32)
+        self.frame_data.pcd.id = data[:, 0].astype(np.int32)  # 98表示背景点
+        self.frame_data.pcd.label = data[:, 1].astype(np.int32)  # 0表示背景点，1表示车辆，2表示行人，3表示自行车/摩托车
 
         self.frame_data.pose.R = self.Rs[frame_id]
         self.frame_data.pose.T = self.Ts[frame_id]

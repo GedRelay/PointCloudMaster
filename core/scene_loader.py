@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
-import tqdm
-import threading
 import importlib
 import paramiko
 from contextlib import contextmanager
 from easydict import EasyDict
 import yaml
+from core.frame_data import FrameData
 
 
 class SceneLoader:
@@ -60,7 +59,7 @@ class SceneLoader:
         self.frame_num = self.dataset_loader.frame_num
 
 
-    def get_frame(self, frame_id: int, filter=None) -> EasyDict:
+    def get_frame(self, frame_id: int, filter=None) -> FrameData:
         """
         加载某一帧的数据
         :param frame_id: 帧id
@@ -69,7 +68,7 @@ class SceneLoader:
         """
         assert 0 <= frame_id < self.frame_num, f'帧id:{frame_id}越界, 最大帧id为{self.frame_num - 1}'
 
-        self.dataset_loader.init_frame_data()
+        self.dataset_loader.frame_data.reset()
         frame_data = self.dataset_loader.load_frame(frame_id)
 
         if filter is not None:
@@ -175,27 +174,9 @@ class DatasetBase:
 
         self.frame_num = len(self.remote.listdir(self.pcd_path))
 
-        self.frame_data = None
-        self.init_frame_data()
+        self.frame_data = FrameData()
 
-    def init_frame_data(self):
-        self.frame_data = EasyDict({
-            'pcd': {
-                'points': None,  # 点云数据
-                'colors': None,  # 点云颜色数据
-            },
-            'geometry': {
-                'arrows': [],  # 箭头
-                'spheres': [],  # 球体
-                'boxes': [],  # 三维包围盒
-            },
-            'pose': {
-                'R': None,  # 旋转矩阵
-                'T': None,  # 平移向量
-            }
-        })
-
-    def load_frame(self, frame_id: int) -> EasyDict:
+    def load_frame(self, frame_id: int) -> FrameData:
         '''
         加载某一帧的数据
         :param frame_id: 帧id
