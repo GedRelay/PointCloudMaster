@@ -2,6 +2,8 @@
 from core import load_config, SceneLoader, Visualizer, Tools, Filters
 import numpy as np
 
+# 运行方式： python -m demos.demo3_Tools_and_Filters
+
 # Tools中包含了一些常用的工具函数，Filter中包含了一些常用的过滤函数
 
 # 定义过滤函数
@@ -41,6 +43,7 @@ def work(frame_data):
         frame_data.pcd.colors[frame_data.pcd.id == id] = np.random.rand(3)  # 随机颜色
 
     return frame_data
+
 
 
 if __name__ == '__main__':

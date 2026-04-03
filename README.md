@@ -39,7 +39,7 @@ PointCloudMaster
 
 安装：
 
-1. 作者的python版本为3.8.18, 不保证其他python版本环境运行正常
+1. 作者的python版本为3.8.18, 不保证其他python版本环境运行正常，建议创建虚拟环境`conda create -n PCM python=3.8`，并激活虚拟环境`conda activate PCM` 
 
 2. 运行`pip install -r requirements.txt` 指令安装依赖
 
@@ -50,10 +50,10 @@ hosts:
   - hostname: 服务器名字
     ip: 服务器ip
     username: 服务器用户名
-    private_key: 本机存放ssh私钥的位置，如 C:/Users/Admin/.ssh/id_rsa
+    private_key: 本机存放ssh私钥的位置，如 C:/Users/Admin/.ssh/id_rsa（需提前配置好免密，将ssh私钥添加到服务器的authorized_keys中）
 ```
 
-4. 请阅读并运行`demo`文件夹下的演示代码，运行以下指令查看演示1的可视化效果，其他演示代码的运行方法类似
+1. 请阅读并运行`demo`文件夹下的演示代码，运行以下指令查看演示1的可视化效果，其他演示代码的运行方法类似
 ```bash
 python -m demos.demo1_visualize
 ```

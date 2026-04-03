@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from easydict import EasyDict
 import yaml
 from core.frame_data import FrameData
+import pickle
 
 
 class SceneLoader:
@@ -13,6 +14,9 @@ class SceneLoader:
         self.datasets_yaml_file = config.datasets_yaml
         self.dataset_name = config.dataset
         self.scene_id = config.scene_id
+        self.save_cache = config.get('save_cache', True)
+        self.use_cache = config.get('use_cache', True)
+        self.cache_path = config.get('cache_path', 'cache/scene_cache')
 
         with open(self.datasets_yaml_file, 'r', encoding='utf-8') as f:
             datasets_config = EasyDict(yaml.safe_load(f))
@@ -59,17 +63,30 @@ class SceneLoader:
         self.frame_num = self.dataset_loader.frame_num
 
 
-    def get_frame(self, frame_id: int, filter=None) -> FrameData:
+    def get_frame(self, frame_id: int, filter=None, use_cache=None) -> FrameData:
         """
         加载某一帧的数据
         :param frame_id: 帧id
         :param filter: 过滤函数
+        :param use_cache: 是否使用缓存，默认为self.use_cache
         :return: frame_data: 当前帧的数据
         """
         assert 0 <= frame_id < self.frame_num, f'帧id:{frame_id}越界, 最大帧id为{self.frame_num - 1}'
 
-        self.dataset_loader.frame_data.reset()
-        frame_data = self.dataset_loader.load_frame(frame_id)
+        # 检查缓存文件是否存在
+        cache_file_path = os.path.join(self.cache_path, self.dataset_name, f'scene_{self.scene_id}', f'frame_{frame_id}.pkl')
+        cache_exists = os.path.exists(cache_file_path)
+
+        if cache_exists and (use_cache if use_cache is not None else self.use_cache):
+            with open(cache_file_path, 'rb') as f:
+                frame_data = pickle.load(f)
+        else:
+            self.dataset_loader.frame_data.reset()
+            frame_data = self.dataset_loader.load_frame(frame_id)
+            if self.save_cache:
+                os.makedirs(os.path.dirname(cache_file_path), exist_ok=True)
+                with open(cache_file_path, 'wb') as f:
+                    pickle.dump(frame_data, f)
 
         if filter is not None:
             frame_data = filter(frame_data)
@@ -88,7 +105,7 @@ class RemoteClient:
         '''
         self.hostname = hostname
         self.is_remote = False if hostname == "" or hostname == "localhost" else True
-        self.fetch_cache_path = "fetch_cache"
+        self.fetch_cache_path = "cache/fetch_cache"
         if self.is_remote:
             os.makedirs(self.fetch_cache_path, exist_ok=True)
             # 连接远程服务器

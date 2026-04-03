@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from core import load_config, SceneLoader, Visualizer, Tools
-import matplotlib.pyplot as plt
 import numpy as np
+import cv2
 
+
+# 运行方式： python -m demos.demo_dataset_kitti_tracking
 
 def points_to_image(points, Tr_velo_cam, R0, P):
     """
@@ -25,6 +27,8 @@ def points_to_image(points, Tr_velo_cam, R0, P):
 bboxes_color = {}  # 每个id拥有不同的颜色
 
 def filter(frame_data):
+    print(frame_data)  # 打印帧数据查看其内容
+
     frame_data.pcd.colors = np.ones_like(frame_data.pcd.points)
 
     # 可视化3D包围盒
@@ -40,20 +44,22 @@ def filter(frame_data):
     select_points = frame_data.pcd.points[mask]
     frame_data.pcd.colors[mask] = [1, 0, 0]
 
-    # 可视化图片以及2D包围盒
-    plt.clf()
-    plt.imshow(frame_data.image)
+
+    # 使用OpenCV可视化图片以及2D包围盒
+    image = frame_data.image.copy()
     for i, box in enumerate(frame_data.bbox_2d):
         id = frame_data.bbox_2d_ids[i]
-        plt.gca().add_patch(
-            plt.Rectangle((box[0], box[1]), box[2] - box[0], box[3] - box[1], fill=False, edgecolor=bboxes_color[id]))
-
+        color = (bboxes_color[id] * 255).astype(np.uint8).tolist()
+        cv2.rectangle(image, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), color, 2)
+    
     # 将筛选出的点云投影到图像上
     points_2d = points_to_image(select_points, frame_data.calib['Tr_velo_cam'], frame_data.calib['R0'],
                                 frame_data.calib['P2'])
-    plt.scatter(points_2d[:, 0], points_2d[:, 1], c='r', s=1)
-    plt.ion()
-    plt.show()
+    for point in points_2d:
+        cv2.circle(image, (int(point[0]), int(point[1])), 2, (0, 0, 255), -1)
+
+    cv2.imshow('image', image)
+    cv2.waitKey(1)
 
     return frame_data
 

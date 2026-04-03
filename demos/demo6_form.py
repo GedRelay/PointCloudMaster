@@ -2,6 +2,9 @@
 from core import load_config, SceneLoader, Visualizer
 import numpy as np
 
+# 运行方式： python -m demos.demo6_form
+
+
 def filter(frame_data):
     # 绘制id为98的点云为灰色，其他点云为橙色
     frame_data.pcd.colors = np.ones_like(frame_data.pcd.points) * [1, 0.5, 0]  # 默认橙色

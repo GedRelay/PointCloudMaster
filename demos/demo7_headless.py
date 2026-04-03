@@ -3,6 +3,9 @@ from core import load_config, SceneLoader, Visualizer, Tools
 import time
 import matplotlib.pyplot as plt
 
+
+# 运行方式： python -m demos.demo7_headless
+
 times = []
 
 def filter(frame_data):

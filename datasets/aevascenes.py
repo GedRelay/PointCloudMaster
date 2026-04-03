@@ -2,10 +2,8 @@
 from core import DatasetBase
 import os
 import numpy as np
-import time
 import json
-from PIL import Image
-import io
+import cv2
 
 class aevascenes(DatasetBase):
     def __init__(self, scene_id, dataset_config):
@@ -183,9 +181,8 @@ class aevascenes(DatasetBase):
         '''
         加载图片到内存
         :param img_path: 图片路径
-        :return: image: PIL.Image对象
+        :return: image: numpy数组格式的图片数据, shape为(H, W, 3)，格式为BGR
         '''
-        with open(img_path, 'rb') as file:
-            img_data = file.read()
-        image = Image.open(io.BytesIO(img_data))
+        image = cv2.imread(img_path)  # 注意OpenCV加载的图像格式为BGR，如果需要RGB格式可以使用cv2.cvtColor进行转换
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         return image

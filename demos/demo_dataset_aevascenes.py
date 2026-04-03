@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from core import load_config, SceneLoader, Visualizer, FrameData, Tools
 import numpy as np
-import matplotlib.pyplot as plt
+import cv2
+
+
+# 运行方式： python -m demos.demo_dataset_aevascenes
 
 def aevascenes_filter(frame_data: FrameData) -> FrameData:
     '''
@@ -43,15 +46,15 @@ def aevascenes_filter(frame_data: FrameData) -> FrameData:
 
     frame_data.pcd.colors = np.zeros_like(frame_data.pcd.points) + 0.5  # 设置点云颜色为灰色
 
-    # 可视化前置宽角摄像头的图像
-    plt.clf()
-    plt.imshow(frame_data.images['front_wide_camera'])
-    plt.ion()
-    plt.show()
+    # 可视化front_narrow_camera摄像头的图像
+    WIDTH = frame_data.images['front_narrow_camera'].shape[1] // 4
+    HEIGHT = frame_data.images['front_narrow_camera'].shape[0] // 4
+    img = cv2.resize(frame_data.images['front_narrow_camera'], (WIDTH, HEIGHT))
+    cv2.imshow('front_narrow_camera', img)
 
     return frame_data
 
-# 运行方式： python -m demos.demo_dataset_aevascenes
+
 if __name__ == '__main__':
     config = load_config('core/default_config.yaml')
     config.scene_config.dataset = 'aevascenes'

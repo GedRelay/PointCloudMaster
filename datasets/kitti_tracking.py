@@ -2,8 +2,7 @@
 from core import DatasetBase, Tools
 import os
 import numpy as np
-from PIL import Image
-import io
+import cv2
 
 class kitti_tracking(DatasetBase):
     def __init__(self, scene_id, dataset_config):
@@ -209,7 +208,11 @@ def rotz(t):
                      [0, 0, 1]])
 
 def load_image_to_memory(img_path):
-    with open(img_path, 'rb') as file:
-        img_data = file.read()
-    image = Image.open(io.BytesIO(img_data))
-    return image
+        '''
+        加载图片到内存
+        :param img_path: 图片路径
+        :return: image: numpy数组格式的图片数据, shape为(H, W, 3)，格式为BGR
+        '''
+        image = cv2.imread(img_path)  # 注意OpenCV加载的图像格式为BGR，如果需要RGB格式可以使用cv2.cvtColor进行转换
+        # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        return image

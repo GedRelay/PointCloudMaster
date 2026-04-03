@@ -2,6 +2,7 @@ from core import load_config, SceneLoader, Visualizer
 
 
 # 运行方式： python -m demos.demo1_visualize
+
 if __name__ == '__main__':
     # 加载参数和设置:
     # 1. 可以手动修改目标配置文件*.yaml中的参数
@@ -16,15 +17,20 @@ if __name__ == '__main__':
     scene = SceneLoader(config.scene_config)
     print("场景帧数:", scene.frame_num)
 
-    # 获取第100帧点云
-    frame_data = scene.get_frame(frame_id=100)
-    print(frame_data.pcd.points.shape)
-
     # 创建可视化工具
     visualizer = Visualizer(config.visualizer_config)
 
+    # -----------------------------------------------------------------------------------------
+    # 方式1：首先通过scene.get_frame()获取帧数据，然后通过visualizer.draw_points()可视化单帧点云
+    # 获取第100帧点云
+    frame_data = scene.get_frame(frame_id=100)  
+    print(frame_data.pcd.points.shape)
+
     # 可视化单帧点云
     visualizer.draw_points(frame_data)
+
+    # -----------------------------------------------------------------------------------------
+    # 方式2：直接通过visualizer.play_scene()动态可视化整个场景
 
     # 动态可视化整个场景
     # 可以使用 空格键 暂停/继续，在暂停状态下可以使用方向键 ← → 或 ↑ ↓ 来控制帧的前进和后退

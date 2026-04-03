@@ -2,6 +2,9 @@ scene_config:
     datasets_yaml: datasets/datasets.yaml
     dataset: carla4d
     scene_id: 0
+    save_cache: true  # 是否保存缓存数据到本地
+    use_cache: true  # 是否使用本地缓存数据，如果为true且缓存文件存在则直接加载缓存文件，跳过数据拉取和加载流程
+    cache_path: cache/scene_cache  # 缓存数据的保存路径
 
 visualizer_config:
     window_name: PCM
