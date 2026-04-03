@@ -6,6 +6,35 @@ import cv2
 
 # 运行方式： python -m demos.demo_dataset_aevascenes
 
+def points_to_image(points, calib, camera_name):
+    T_v_c = np.linalg.inv(calib['vehicle_to_camera_extrinsics'][camera_name])
+
+    K = calib['camera_intrinsics'][camera_name]['intrinsic_matrix']
+    dist = np.array(calib['camera_intrinsics'][camera_name]['distortion_coefficients'])
+
+    N = points.shape[0]
+    points_h = np.concatenate([points, np.ones((N, 1))], axis=1)
+
+    points_camera = (T_v_c @ points_h.T).T[:, :3]
+
+    mask = points_camera[:, 2] > 0
+    xyz_valid = points_camera[mask]
+
+    rvec = np.zeros(3)
+    tvec = np.zeros(3)
+
+    uv, _ = cv2.projectPoints(
+        xyz_valid,
+        rvec,
+        tvec,
+        K,
+        dist
+    )
+
+    return uv.reshape(-1, 2)
+
+
+
 def aevascenes_filter(frame_data: FrameData) -> FrameData:
     '''
     过滤函数：可视化3D包围盒和速度箭头
@@ -33,8 +62,8 @@ def aevascenes_filter(frame_data: FrameData) -> FrameData:
             box_color = (0, 1, 1)
             arrow_color = (0, 1, 1)
         else:
-            box_color = (1, 1, 1)
-            arrow_color = (1, 1, 1)
+            box_color = (0, 0, 0)
+            arrow_color = (0, 0, 0)
 
         # 可视化速度箭头
         vector = np.array([frame_data.velocity_arrows_data[i][3], frame_data.velocity_arrows_data[i][4], frame_data.velocity_arrows_data[i][5]])
@@ -46,11 +75,24 @@ def aevascenes_filter(frame_data: FrameData) -> FrameData:
 
     frame_data.pcd.colors = np.zeros_like(frame_data.pcd.points) + 0.5  # 设置点云颜色为灰色
 
-    # 可视化front_narrow_camera摄像头的图像
-    WIDTH = frame_data.images['front_narrow_camera'].shape[1] // 4
-    HEIGHT = frame_data.images['front_narrow_camera'].shape[0] // 4
-    img = cv2.resize(frame_data.images['front_narrow_camera'], (WIDTH, HEIGHT))
-    cv2.imshow('front_narrow_camera', img)
+    # 筛选出指定区域的点云
+    mask = (frame_data.pcd.points[:, 0] > 10) & (frame_data.pcd.points[:, 0] < 20) & (frame_data.pcd.points[:, 1] > -6.5) & (frame_data.pcd.points[:, 1] < -2.5)
+    select_points = frame_data.pcd.points[mask]
+    frame_data.pcd.colors[mask] = [1, 0, 0]
+
+    # 将筛选出的点云投影到图像上
+    image = frame_data.images['front_wide_camera']
+
+    points_2d = points_to_image(select_points, frame_data.calib, 'front_wide_camera')
+    for point in points_2d:
+        cv2.circle(image, (int(point[0]), int(point[1])), 2, (0, 0, 255), -1)
+
+    # 可视化front_wide_camera摄像头的图像
+    WIDTH = image.shape[1] // 4
+    HEIGHT = image.shape[0] // 4
+    image = cv2.resize(image, (WIDTH, HEIGHT))
+    cv2.imshow('front_wide_camera', image)
+
 
     return frame_data
 

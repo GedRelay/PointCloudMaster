@@ -146,8 +146,9 @@ class Visualizer():
         if self.init_camera_rpy is not None and self.init_camera_T is not None:
             cam_params = o3d.camera.PinholeCameraParameters()
 
-            R = Tools.Math.euler2mat(self.init_camera_rpy[0], self.init_camera_rpy[1], self.init_camera_rpy[2], degrees=True)
-            T = np.array([self.init_camera_T[1], self.init_camera_T[0], self.init_camera_T[2]])
+            R = Tools.Math.euler2mat(-self.init_camera_rpy[1], -self.init_camera_rpy[2], self.init_camera_rpy[0], degrees=True)
+            T = R @ np.array([self.init_camera_T[1], self.init_camera_T[2], -self.init_camera_T[0]])
+            R = R @ Tools.Math.euler2mat(90, -90, 0, degrees=True)
 
             Matrix = np.eye(4)
             Matrix[:3, :3] = R
@@ -286,8 +287,9 @@ class Visualizer():
                 if self.init_camera_rpy is not None and self.init_camera_T is not None:
                     cam_params = o3d.camera.PinholeCameraParameters()
 
-                    R = Tools.Math.euler2mat(self.init_camera_rpy[0], self.init_camera_rpy[1], self.init_camera_rpy[2], degrees=True)
-                    T = np.array([self.init_camera_T[1], self.init_camera_T[0], self.init_camera_T[2]])
+                    R = Tools.Math.euler2mat(-self.init_camera_rpy[1], -self.init_camera_rpy[2], self.init_camera_rpy[0], degrees=True)
+                    T = R @ np.array([self.init_camera_T[1], self.init_camera_T[2], -self.init_camera_T[0]])
+                    R = R @ Tools.Math.euler2mat(90, -90, 0, degrees=True)
 
                     Matrix = np.eye(4)
                     Matrix[:3, :3] = R
@@ -464,8 +466,9 @@ class Visualizer():
         if self.init_camera_rpy is not None and self.init_camera_T is not None:
             cam_params = o3d.camera.PinholeCameraParameters()
 
-            R = Tools.Math.euler2mat(self.init_camera_rpy[0], self.init_camera_rpy[1], self.init_camera_rpy[2], degrees=True)
-            T = np.array([self.init_camera_T[1], self.init_camera_T[0], self.init_camera_T[2]])
+            R = Tools.Math.euler2mat(-self.init_camera_rpy[1], -self.init_camera_rpy[2], self.init_camera_rpy[0], degrees=True)
+            T = R @ np.array([self.init_camera_T[1], self.init_camera_T[2], -self.init_camera_T[0]])
+            R = R @ Tools.Math.euler2mat(90, -90, 0, degrees=True)
 
             Matrix = np.eye(4)
             Matrix[:3, :3] = R
@@ -639,8 +642,9 @@ class Visualizer():
                 if self.init_camera_rpy is not None and self.init_camera_T is not None:
                     cam_params = o3d.camera.PinholeCameraParameters()
 
-                    R = Tools.Math.euler2mat(self.init_camera_rpy[0], self.init_camera_rpy[1], self.init_camera_rpy[2], degrees=True)
-                    T = np.array([self.init_camera_T[1], self.init_camera_T[0], self.init_camera_T[2]])
+                    R = Tools.Math.euler2mat(-self.init_camera_rpy[1], -self.init_camera_rpy[2], self.init_camera_rpy[0], degrees=True)
+                    T = R @ np.array([self.init_camera_T[1], self.init_camera_T[2], -self.init_camera_T[0]])
+                    R = R @ Tools.Math.euler2mat(90, -90, 0, degrees=True)
 
                     Matrix = np.eye(4)
                     Matrix[:3, :3] = R

@@ -2,6 +2,7 @@ scene_config:
     datasets_yaml: datasets/datasets.yaml
     dataset: carla4d
     scene_id: 0
+    # 注意：如果你修改了数据集的加载代码或数据，建议删除缓存文件夹中的对应缓存文件以避免加载过期的缓存数据
     save_cache: true  # 是否保存缓存数据到本地
     use_cache: true  # 是否使用本地缓存数据，如果为true且缓存文件存在则直接加载缓存文件，跳过数据拉取和加载流程
     cache_path: cache/scene_cache  # 缓存数据的保存路径
@@ -27,5 +28,6 @@ visualizer_config:
     
     camera_sync: true  # 双窗口时是否相机同步, true表示同步, false表示不同步
     axis: 5  # 坐标轴大小, 0表示不绘制坐标轴
-    init_camera_rpy: null  # 初始相机姿态, [roll, pitch, yaw]，如果为null则不设置
+    # 初始相机参数设置，先按照原始坐标系方向进行相机平移，然后再按照rpy进行视角旋转，注意如果init_camera_T为null则init_camera_rpy也不生效，反之亦然，如果都不为null则同时设置初始相机位置和姿态
+    init_camera_rpy: null  # 初始相机姿态, [roll, pitch, yaw]，单位为度，如果为null则不设置，roll、pitch、yaw分别表示绕x、y、z轴的旋转，正值表示逆时针旋转
     init_camera_T: null  # 初始相机位置, [x, y, z]，单位为米，如果为null则不设置

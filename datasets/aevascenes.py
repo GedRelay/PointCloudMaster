@@ -18,7 +18,8 @@ class aevascenes(DatasetBase):
                 jsondata = json.load(f)
                 self.sequence_framedata = jsondata['frames']
                 self.sequence_metadata = jsondata['metadata']
-
+        
+        self.calib = self.load_calibration()
 
 
     def load_frame(self, frame_id):
@@ -30,6 +31,7 @@ class aevascenes(DatasetBase):
         self.frame_data.sequence_uuid = self.sequence_metadata['sequence_uuid']  # 序列uuid
         self.frame_data.frame_uuid = self.sequence_framedata[frame_id]['frame_uuid']  # 帧uuid
         self.frame_data.timestamp = self.timestamps[frame_id]  # 时间戳
+        self.frame_data.calib = self.calib  # 校准参数
 
         points = []
         intensity = []
@@ -42,7 +44,7 @@ class aevascenes(DatasetBase):
             filename = f"{lidar}_{self.timestamps[frame_id]}.npz"
             with self.remote.get(os.path.join(self.pcd_path, filename)) as pcd_path:
                 with np.load(pcd_path, allow_pickle=True) as data:
-                    points.append(self.pcd_vehicle_to_lidar(data['xyz'], self.sequence_metadata['vehicle_to_lidar_extrinsics'][lidar]))
+                    points.append(self.pcd_lidar_to_vehicle(data['xyz'], self.sequence_metadata['vehicle_to_lidar_extrinsics'][lidar]))
                     intensity.append(data['reflectivity'])
                     velocity.append(data['velocity'])
                     line_index.append(data['line_index'])
@@ -126,11 +128,11 @@ class aevascenes(DatasetBase):
 
         return boxes_corners, velocity_arrows_data, class_names
 
-    def pcd_vehicle_to_lidar(self, points, extrinsics):
+    def pcd_lidar_to_vehicle(self, points, extrinsics):
         '''
-        将点云从车辆坐标系转换到激光雷达坐标系
+        将点云从激光雷达坐标系转换到车辆坐标系
         :param points: 点云数据 [N, 3]
-        :param extrinsics: 车辆到激光雷达的外参
+        :param extrinsics: 激光雷达到车辆的外参
         :return: 转换后的点云数据 [N, 3]
         '''
         tx, ty, tz = extrinsics['translation']['x'], extrinsics['translation']['y'], extrinsics['translation']['z']
@@ -139,7 +141,7 @@ class aevascenes(DatasetBase):
         T = np.array([tx, ty, tz])
 
         # 应用旋转和平移
-        points_lidar = np.dot(points, R.T) + T
+        points_lidar = points @ R.T + T
         return points_lidar
 
 
@@ -176,6 +178,55 @@ class aevascenes(DatasetBase):
             [2 * (qx * qz - qy * qw), 2 * (qy * qz + qx * qw), 1 - 2 * (qx ** 2 + qy ** 2)]
         ])
         return R, T
+
+    def load_calibration(self):
+        '''
+        加载校准参数
+        :return: calib, 包含各个传感器的内参和外参
+        '''
+        vehicle_to_lidar_extrinsics = {}
+        for lidar in ['front_narrow_lidar', 'front_wide_lidar', 'left_lidar','rear_narrow_lidar', 'rear_wide_lidar', 'right_lidar']:
+            translation = self.sequence_metadata['vehicle_to_lidar_extrinsics'][lidar]['translation']
+            rotation = self.sequence_metadata['vehicle_to_lidar_extrinsics'][lidar]['rotation']
+            # 转换为4x4矩阵
+            tx, ty, tz = translation['x'], translation['y'], translation['z']
+            qw, qx, qy, qz = rotation['w'], rotation['x'], rotation['y'], rotation['z']
+            R = self.quaternion_rotation_matrix(qx, qy, qz, qw)
+            extrinsic_matrix = np.eye(4)
+            extrinsic_matrix[:3, :3] = R
+            extrinsic_matrix[:3, 3] = [tx, ty, tz]
+            vehicle_to_lidar_extrinsics[lidar] = extrinsic_matrix
+
+        vehicle_to_camera_extrinsics = {}
+        for camera in ['front_narrow_camera', 'front_wide_camera', 'left_camera','rear_narrow_camera', 'rear_wide_camera', 'right_camera']:
+            translation = self.sequence_metadata['vehicle_to_camera_extrinsics'][camera]['translation']
+            rotation = self.sequence_metadata['vehicle_to_camera_extrinsics'][camera]['rotation']
+            # 转换为4x4矩阵
+            tx, ty, tz = translation['x'], translation['y'], translation['z']
+            qw, qx, qy, qz = rotation['w'], rotation['x'], rotation['y'], rotation['z']
+            R = self.quaternion_rotation_matrix(qx, qy, qz, qw)
+            extrinsic_matrix = np.eye(4)
+            extrinsic_matrix[:3, :3] = R
+            extrinsic_matrix[:3, 3] = [tx, ty, tz]
+            vehicle_to_camera_extrinsics[camera] = extrinsic_matrix
+
+        camera_intrinsics = {}
+        for camera in ['front_narrow_camera', 'front_wide_camera', 'left_camera','rear_narrow_camera', 'rear_wide_camera', 'right_camera']:
+            distortion_coefficients = self.sequence_metadata['camera_intrinsics'][camera]['distortion_coefficients']  # len=5
+            intrinsic_matrix = self.sequence_metadata['camera_intrinsics'][camera]['matrix']  # len=9
+            intrinsic_matrix = np.array(intrinsic_matrix).reshape(3, 3)
+            camera_intrinsics[camera] = {
+                'intrinsic_matrix': intrinsic_matrix,
+                'distortion_coefficients': distortion_coefficients
+            }
+
+        calib = {
+            'vehicle_to_lidar_extrinsics': vehicle_to_lidar_extrinsics,
+            'vehicle_to_camera_extrinsics': vehicle_to_camera_extrinsics,
+            'camera_intrinsics': camera_intrinsics
+        }
+
+        return calib
 
     def load_image_to_memory(self, img_path):
         '''
